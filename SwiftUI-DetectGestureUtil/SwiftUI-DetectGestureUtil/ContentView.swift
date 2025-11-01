@@ -1,20 +1,36 @@
-//
-//  ContentView.swift
-//  SwiftUI-DetectGestureUtil
-//
-//  Created by IeSo on 2025/11/01.
-//
-
 import SwiftUI
 import MyModuleFeatureDetectGesture
 
 struct ContentView: View {
+    @State private var detectGestureState = DetectGestureState<GestureDetection>()
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("sample text".sayHello())
+        ZStack {
+            Rectangle()
+                .fill(Color.blue)
+                .detectGesture(
+                    state: $detectGestureState,
+                    detectGesture: { state in
+                        state.detected(.tap) ? .tap : nil
+                    },
+                    handleGesture: { detection, state in
+                        switch detection {
+                        case .tap:
+                            print("Tap Detected")
+                        case .longTap:
+                            print("Long Tap Detected")
+                        case .rightSwipe:
+                            print("Right Swipe Detected")
+                        case .drag:
+                            print("Drag Detected")
+                        case .tripleTap:
+                            print("Drag Detected")
+                        case .slide:
+                            print("Drag Detected")
+                        }
+                        return true
+                    }
+                )
         }
         .padding()
     }
@@ -22,4 +38,14 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+}
+
+/// Wanted Detection
+enum GestureDetection: Equatable {
+    case tap
+    case longTap
+    case rightSwipe
+    case drag
+    case tripleTap
+    case slide
 }
