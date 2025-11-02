@@ -61,6 +61,25 @@ public struct DetectGestureState<GestureDetection: Equatable> {
                     diff.x >= minimumDistance
                 }
             })
+        case .swipe(direction: let direction):
+            return gestureValues
+                .filter { value in
+                    value.timing == .ended
+                }
+                .contains(where: {
+                    let velocity = $0.dragGestureValue.velocity
+
+                    return switch direction {
+                    case .top:
+                        -velocity.height >= Const.swipeMinimumVelocity
+                    case .bottom:
+                        velocity.height >= Const.swipeMinimumVelocity
+                    case .left:
+                        -velocity.width >= Const.swipeMinimumVelocity
+                    case .right:
+                        velocity.width >= Const.swipeMinimumVelocity
+                    }
+                })
         }
     }
 }
@@ -79,4 +98,8 @@ public struct DetectGestureStateValue {
         return 0 <= dragGestureValue.location.x && dragGestureValue.location.x <= geometryProxy.size.width
             && 0 <= dragGestureValue.location.y && dragGestureValue.location.y <= geometryProxy.size.height
     }
+}
+
+private struct Const {
+    static let swipeMinimumVelocity: CGFloat = 300
 }
