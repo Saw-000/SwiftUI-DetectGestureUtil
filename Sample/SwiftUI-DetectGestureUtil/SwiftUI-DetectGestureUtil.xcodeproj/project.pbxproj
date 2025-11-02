@@ -7,8 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C71739242EB7D52600E7EC1D /* SwiftUI-DetectGestureUtil in Frameworks */ = {isa = PBXBuildFile; productRef = C71739232EB7D52600E7EC1D /* SwiftUI-DetectGestureUtil */; };
-		C7CFB0912EB5E663004AA864 /* SwiftUI-DetectGestureUtil in Frameworks */ = {isa = PBXBuildFile; productRef = C7CFB0902EB5E663004AA864 /* SwiftUI-DetectGestureUtil */; };
+		C7C69FB02EB7E7FA00BE3870 /* SwiftUI-DetectGestureUtil in Frameworks */ = {isa = PBXBuildFile; productRef = C7CFB0902EB5E663004AA864 /* SwiftUI-DetectGestureUtil */; };
+		C7C69FB12EB7E7FA00BE3870 /* SwiftUI-DetectGestureUtil in Frameworks */ = {isa = PBXBuildFile; productRef = C71739232EB7D52600E7EC1D /* SwiftUI-DetectGestureUtil */; };
+		C7D41C8B2EB7E65800AFCF90 /* SwiftUI-DetectGestureUtil in Frameworks */ = {isa = PBXBuildFile; productRef = C7D41C7F2EB7E5EB00AFCF90 /* SwiftUI-DetectGestureUtil */; };
+		C7F9D82C2EB7E8A100D2FD35 /* SwiftUI-DetectGestureUtil in Frameworks */ = {isa = PBXBuildFile; productRef = C7F9D82B2EB7E8A100D2FD35 /* SwiftUI-DetectGestureUtil */; };
+		C7F9D82F2EB7E9AE00D2FD35 /* SwiftUIDetectGestureUtil in Frameworks */ = {isa = PBXBuildFile; productRef = C7F9D82E2EB7E9AE00D2FD35 /* SwiftUIDetectGestureUtil */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,8 +31,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C7CFB0912EB5E663004AA864 /* SwiftUI-DetectGestureUtil in Frameworks */,
-				C71739242EB7D52600E7EC1D /* SwiftUI-DetectGestureUtil in Frameworks */,
+				C7C69FB12EB7E7FA00BE3870 /* SwiftUI-DetectGestureUtil in Frameworks */,
+				C7F9D82F2EB7E9AE00D2FD35 /* SwiftUIDetectGestureUtil in Frameworks */,
+				C7C69FB02EB7E7FA00BE3870 /* SwiftUI-DetectGestureUtil in Frameworks */,
+				C7D41C8B2EB7E65800AFCF90 /* SwiftUI-DetectGestureUtil in Frameworks */,
+				C7F9D82C2EB7E8A100D2FD35 /* SwiftUI-DetectGestureUtil in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -40,6 +46,7 @@
 			isa = PBXGroup;
 			children = (
 				C7CFB07D2EB5E568004AA864 /* SwiftUI-DetectGestureUtil */,
+				C7D41C7D2EB7E5D100AFCF90 /* Frameworks */,
 				C7CFB07C2EB5E568004AA864 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -50,6 +57,13 @@
 				C7CFB07B2EB5E568004AA864 /* SwiftUI-DetectGestureUtil.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		C7D41C7D2EB7E5D100AFCF90 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -74,6 +88,9 @@
 			packageProductDependencies = (
 				C7CFB0902EB5E663004AA864 /* SwiftUI-DetectGestureUtil */,
 				C71739232EB7D52600E7EC1D /* SwiftUI-DetectGestureUtil */,
+				C7D41C7F2EB7E5EB00AFCF90 /* SwiftUI-DetectGestureUtil */,
+				C7F9D82B2EB7E8A100D2FD35 /* SwiftUI-DetectGestureUtil */,
+				C7F9D82E2EB7E9AE00D2FD35 /* SwiftUIDetectGestureUtil */,
 			);
 			productName = "SwiftUI-DetectGestureUtil";
 			productReference = C7CFB07B2EB5E568004AA864 /* SwiftUI-DetectGestureUtil.app */;
@@ -104,7 +121,7 @@
 			mainGroup = C7CFB0722EB5E568004AA864;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				C71739222EB7D52600E7EC1D /* XCLocalSwiftPackageReference "../../../SwiftUI-DetectGestureUtil" */,
+				C7F9D82D2EB7E9AE00D2FD35 /* XCRemoteSwiftPackageReference "SwiftUI-DetectGestureUtil" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C7CFB07C2EB5E568004AA864 /* Products */;
@@ -360,12 +377,16 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		C71739222EB7D52600E7EC1D /* XCLocalSwiftPackageReference "../../../SwiftUI-DetectGestureUtil" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = "../../../SwiftUI-DetectGestureUtil";
+/* Begin XCRemoteSwiftPackageReference section */
+		C7F9D82D2EB7E9AE00D2FD35 /* XCRemoteSwiftPackageReference "SwiftUI-DetectGestureUtil" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Saw-000/SwiftUI-DetectGestureUtil";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
 		};
-/* End XCLocalSwiftPackageReference section */
+/* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		C71739232EB7D52600E7EC1D /* SwiftUI-DetectGestureUtil */ = {
@@ -375,6 +396,19 @@
 		C7CFB0902EB5E663004AA864 /* SwiftUI-DetectGestureUtil */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = "SwiftUI-DetectGestureUtil";
+		};
+		C7D41C7F2EB7E5EB00AFCF90 /* SwiftUI-DetectGestureUtil */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = "SwiftUI-DetectGestureUtil";
+		};
+		C7F9D82B2EB7E8A100D2FD35 /* SwiftUI-DetectGestureUtil */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = "SwiftUI-DetectGestureUtil";
+		};
+		C7F9D82E2EB7E9AE00D2FD35 /* SwiftUIDetectGestureUtil */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C7F9D82D2EB7E9AE00D2FD35 /* XCRemoteSwiftPackageReference "SwiftUI-DetectGestureUtil" */;
+			productName = SwiftUIDetectGestureUtil;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

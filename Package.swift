@@ -11,13 +11,20 @@ let package = Package(
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
-            name: "SwiftUIDetectGestureUtil",
+            name: "SwiftUI-DetectGestureUtil",
             targets: [
-                MyModule.featureDetectGesture.name
+                MyModule.swiftUIDetectGestureUtil.name // "SwiftUI-DetectGestureUtil"
             ]
         ),
     ],
     targets: [
+        .target(
+            name: MyModule.swiftUIDetectGestureUtil.name,
+            dependencies: [
+                MyModule.featureDetectGesture.dependency
+            ],
+            path: MyModule.swiftUIDetectGestureUtil.folderPath
+        ),
         .target(
             name: MyModule.featureDetectGesture.name,
             dependencies: [
@@ -38,6 +45,7 @@ let package = Package(
 enum MyModule {
     case core
     case featureDetectGesture
+    case swiftUIDetectGestureUtil
 
     var folderPath: String {
         return switch self {
@@ -45,13 +53,20 @@ enum MyModule {
             "Sources/Core"
         case .featureDetectGesture:
             "Sources/Feature/DetectGesture"
+        case .swiftUIDetectGestureUtil:
+            "Sources/SwiftUIDetectGestureUtil"
         }
     }
 
     var name: String {
-        return "MyModule" + folderPath
-            .replacingOccurrences(of: "Sources", with: "")
-            .replacingOccurrences(of: "/", with: "")
+        return switch self {
+        case .swiftUIDetectGestureUtil:
+            "SwiftUI-DetectGestureUtil"
+        default:
+            "MyModule" + folderPath
+                .replacingOccurrences(of: "Sources", with: "")
+                .replacingOccurrences(of: "/", with: "")
+        }
     }
 
     var dependency: Target.Dependency {

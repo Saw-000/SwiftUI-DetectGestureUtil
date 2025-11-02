@@ -1,0 +1,15 @@
+{
+  "originHash" : "dfd7e9ffceea62d4fe8452503e6cd6037f0e149e92c6023eefd7e32bdf53b2ce",
+  "pins" : [
+    {
+      "identity" : "swiftui-detectgestureutil",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Saw-000/SwiftUI-DetectGestureUtil",
+      "state" : {
+        "branch" : "main",
+        "revision" : "49341173335d3259bb84c0c9449f7ba78eb2ecf8"
+      }
+    }
+  ],
+  "version" : 3
+}

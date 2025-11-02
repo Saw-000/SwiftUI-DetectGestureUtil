@@ -1,5 +1,5 @@
 import SwiftUI
-import MyModuleFeatureDetectGesture
+import SwiftUI_DetectGestureUtil
 
 struct ContentView: View {
     @State private var detectedGestureText: String? = nil
