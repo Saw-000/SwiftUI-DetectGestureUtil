@@ -2,10 +2,9 @@
 
 SwiftUIの一つのViewに複数のカスタムジェスチャの中の一つだけを検知させられるSwift Packageです。
 
-<img width="400" alt="Simulator Screenshot - iPad (A16) - 2025-11-03 at 05 16 05" src="https://github.com/user-attachments/assets/b4489562-080f-493b-9375-a42a3922f256" />
+<img width="400" alt="Simulator Screenshot - iPad (A16) - 2025-11-03 at 05 22 09" src="https://github.com/user-attachments/assets/1ee868bc-91ad-48bd-9a0a-c507ba95c56a" />
 
 (サンプルアプリのスクリーンショット)
-
 
 ## Install
 
