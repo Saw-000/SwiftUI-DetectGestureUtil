@@ -21,7 +21,8 @@ let package = Package(
         .target(
             name: MyModule.swiftUIDetectGestureUtil.name,
             dependencies: [
-                MyModule.featureDetectGesture.dependency
+                MyModule.featureDetectGesture.dependency,
+                MyModule.core.dependency
             ],
             path: MyModule.swiftUIDetectGestureUtil.folderPath
         ),
