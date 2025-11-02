@@ -134,6 +134,9 @@ func detectCircle(points: [CGPoint]) -> Bool {
 }
 ```
 
+## Caution
+- ※ Multi-Fingered Gesture has not supported yet. (No plans)
+
 ## Sample
 Run the project in Sample folder.
 
