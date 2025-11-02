@@ -1,15 +1,20 @@
 import SwiftUI
 
+/// View modifier for detecting custom gestures
 struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
+    /// Gesture state binding
     @Binding private var state: DetectGestureState<GestureDetection>
 
+    /// Coordinate space for gesture tracking
     private let coordinateSpace: CoordinateSpace
 
+    /// Closure to detect gesture from state
     private let detectGesture: (DetectGestureState<GestureDetection>) -> GestureDetection?
 
-    /// return handle completion (completed: true)
+    /// Closure to handle detected gesture, returns handle completion (completed: true)
     private let handleGesture: (_ detection: GestureDetection, DetectGestureState<GestureDetection>) -> Bool
-    
+
+    /// Timer for periodic gesture state updates
     private let heartbeatTimer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
 
     init(
@@ -35,8 +40,8 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
                         .onEnded { value in
                             handleGestureIfNeeded(dragGestureValue: value, geo: geometryProxy, timing: .ended)
 
-                            // ジェスチャ検知とその後のハンドルまで終わっていたら、状態を初期化する。
-                            // つまり逆を言えば、複数回のタップを跨いでジェスチャ検知やハンドルを行える。
+                            // If gesture detection and subsequent handling are complete, reset the state.
+                            // In other words, gesture detection and handling can span multiple taps.
                             if state.gestureDetected && state.handleFinished {
                                 state = DetectGestureState<GestureDetection>()
                             }
@@ -48,13 +53,13 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
         }
     }
 
-    /// 状態を更新し、ジェスチャの検知とハンドルを行う。
+    /// Update state and perform gesture detection and handling.
     private func handleGestureIfNeeded(
         dragGestureValue: DragGesture.Value,
         geo: GeometryProxy,
         timing: DetectGestureStateValue.Timing
     ) {
-        // 新しい値を記録
+        // Record new value
         let value = DetectGestureStateValue(
             dragGestureValue: dragGestureValue,
             geometryProxy: geo,
@@ -63,57 +68,57 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
         )
         state.gestureValues.append(value)
 
-        // ジェスチャの検知とハンドル
+        // Detect and handle gesture
         handleGestureIfNeeded()
     }
-    
-    /// ハートビートでジェスチャの検知とハンドルを行う。
+
+    /// Perform gesture detection and handling with heartbeat.
     private func handleGestureIfNeededWithHeartBeat() {
-        // ジェスチャ検知後の処理まで終わっていたら抜ける。
+        // Exit if processing after gesture detection is finished.
         guard !state.handleFinished else {
             return
         }
-        
-        // タップ開始してないなら抜ける
+
+        // Exit if tap has not started
         guard !state.gestureValues.isEmpty else {
             return
         }
-        
-        // 指が離れていたら抜ける(ここは指離れ時に何かしたくなったら変えるかも)
+
+        // Exit if finger is released (this may change if we want to do something when finger is released)
         guard state.gestureValues.last?.timing != .ended else {
             return
         }
-        
-        // 前のジェスチャ情報をそのまま追加する。
+
+        // Add the previous gesture information as is.
         guard var lastValue = state.gestureValues.last else {
             return
         }
-        
+
         lastValue.time = Date()
         lastValue.timing = .heartbeat
         let value = lastValue
-        
+
         state.gestureValues.append(value)
 
-        // ジェスチャの検知とハンドル
+        // Detect and handle gesture
         handleGestureIfNeeded()
     }
-    
-    /// ジェスチャの検知とハンドル
+
+    /// Gesture detection and handling
     private func handleGestureIfNeeded() {
-        // 指定されたジェスチャが検知されたか？
+        // Was the specified gesture detected?
         let detection: GestureDetection?
         if let existingDetection = state.detection {
             detection = existingDetection
         } else {
             detection = detectGesture(state)
-            // 記録
+            // Record
             if let detection {
                 state.detection = detection
             }
         }
 
-        // ジェスチャが検知された場合、割り当てられた処理をする。
+        // If gesture was detected, perform the assigned processing.
         if state.gestureDetected, !state.handleFinished, let detection {
             state.handleFinished = handleGesture(detection, state)
         }
@@ -121,14 +126,14 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
 }
 
 extension View {
-    /// 複数のカスタムジェスチャを同時に設定し、そのうちの一つだけを検知するジェスチャ。
+    /// Set multiple custom gestures simultaneously and detect only one of them.
     ///
-    /// - Note: GestureDetectionは検知したいジェスチャ。enumにするのがベター。
+    /// - Note: GestureDetection is the gesture you want to detect. It's better to use an enum.
     ///
     /// - Parameters:
-    ///   - state: ジェスチャの状態を管理するBinding
-    ///   - detectGesture: 検知されたジェスチャ(ジェネリックなGestureDetection型)を返すクロージャ。Gesture.changed()と同じように、ジェスチャ状態が更新された時に呼ばれ、ジェスチャ情報が格納されたDetectGestureState型が渡される。GestureDetection型を返した場合、ジェスチャが検知されたことを示し二度と呼ばれなくなり、以降はhandleGestureが呼ばれる。nilを返し続ける限り呼ばれ続ける。また、複数回タップを跨いでハンドルできる。
-    ///   - handleGesture: 検知されたジェスチャを処理するクロージャ。detectGestureのフェーズの完了以降はこちらが呼ばれる。detectGestureで返したGestureDetection型が取れる。ハンドルが終了したかどうかという意味で完了時にBool型を返す。trueを返した場合二度と呼ばれなくなり、全てのジェスチャ処理が完全に終わり初期化される。falseを返し続ける限り、ジェスチャ状態が更新された時に呼ばれ続ける(タイミングとしてはGesture.changed()と同じ)。また、複数回タップを跨いでハンドルできる。
+    ///   - state: Binding to manage gesture state
+    ///   - detectGesture: Closure that returns the detected gesture (generic GestureDetection type). Like Gesture.changed(), it is called when the gesture state is updated and is passed a DetectGestureState containing gesture information. If it returns a GestureDetection type, it indicates the gesture was detected and will not be called again; from then on, handleGesture will be called. It continues to be called as long as it returns nil. It can also handle across multiple taps.
+    ///   - handleGesture: Closure that processes the detected gesture. This is called after the detectGesture phase completes. It receives the GestureDetection type returned by detectGesture. It returns a Bool upon completion to indicate whether handling is finished. If it returns true, it will not be called again, and all gesture processing is completely finished and reset. As long as it returns false, it continues to be called when the gesture state is updated (timing is the same as Gesture.changed()). It can also handle across multiple taps.
     public func detectGesture<GestureDetection: Equatable>(
         state: Binding<DetectGestureState<GestureDetection>>,
         coordinateSpace: CoordinateSpace = .local,

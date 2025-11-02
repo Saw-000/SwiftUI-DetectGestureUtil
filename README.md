@@ -1,10 +1,10 @@
 # SwiftUI-DetectGestureUtil
 
-SwiftUIの一つのViewに複数のカスタムジェスチャの中の一つだけを検知させられるSwift Packageです。
+A Swift Package that allows you to detect only one of multiple custom gestures on a single SwiftUI View.
 
 <img width="400" alt="Simulator Screenshot - iPad (A16) - 2025-11-03 at 05 22 09" src="https://github.com/user-attachments/assets/1ee868bc-91ad-48bd-9a0a-c507ba95c56a" />
 
-(サンプルアプリのスクリーンショット)
+(Sample app screenshot)
 
 ## Install
 
@@ -33,41 +33,41 @@ or by Xcode.
 
 ## Usage
 
-`View.detectGesture()`を使用できます。
+You can use `View.detectGesture()`.
 
-一つのViewに複数のジェスチャを設定でき、そのうちの一つだけを検知させることができます。
+You can set multiple gestures on a single View and detect only one of them.
 
-ジェスチャを検知するフェーズと検知後に処理するフェーズに分かれます。
+It is divided into two phases: the gesture detection phase and the gesture handling phase after detection.
 
 ```swift
 import SwiftUI
 import SwiftUI_DetectGestureUtil
 
 struct ContentView: View {
-    // DetectGestureState<任意の検知したいジェスチャ型>をStateで持つ必要がある。
+    // You need to hold DetectGestureState<Your desired gesture type> as State.
     @State private var detectGestureState = DetectGestureState<MyGestureDetection>()
 
     var body: some View {
         VStack {
-            Text("ジェスチャ: タップ、ダブルタップ + ドラッグ、円形")
+            Text("Gestures: Tap, Double Tap + Drag, Circle")
         }
         .detectGesture(
             state: $detectGestureState,
             detectGesture: { state in
-                // ジェスチャを検知するフェーズ
+                // Gesture detection phase
 
-                // 返り値:
-                // - nil以外: ジェスチャ検知されたこと意味し、検知されたジェスチャを返す。その後ジェスチャ検知フェーズは完了し、このクロージャは呼ばれなくなる。以降はhandleGestureが呼ばれる。
-                // - nil: ジェスチャ検知できなかったことを意味する。nilを返す限り、Gesture.onChanged()やGesture.onEnded()と同様ジェスチャ状態が更新されたときに呼ばれる。DragGestureと違い、同じ座標にとどまっていても新たな座標が追加され、コールされる。
+                // Return value:
+                // - Non-nil: Indicates that a gesture was detected and returns the detected gesture. The gesture detection phase is then complete and this closure will no longer be called. From then on, handleGesture will be called.
+                // - nil: Indicates that no gesture was detected. As long as nil is returned, it will be called when the gesture state is updated, similar to Gesture.onChanged() and Gesture.onEnded(). Unlike DragGesture, new coordinates are added and called even if they remain at the same location.
 
-                if state.detected(.tap) { // デフォルトジェスチャ検知はいくつか用意されている。
-                    // タップジェスチャを検知
+                if state.detected(.tap) { // Several default gesture detections are provided.
+                    // Detect tap gesture
                     return .tap
                 } else if state.detected(.sequentialTap(count: 2, maximumTapIntervalMilliseconds: 250)) && state.detected(.drag) {
-                    // ダブルタップ+ドラッグのジェスチャを検知
+                    // Detect double tap + drag gesture
                     return .doubleTapDrag
                 } else {
-                    // カスタム: デフォルトジェスチャを使わず、円のジェスチャを検知
+                    // Custom: Detect circle gesture without using default gestures
                     let points = state.gestureValues
                         .filter { $0.timing != .heartbeat }
                         .map { $0.dragGestureValue.location }
@@ -77,41 +77,41 @@ struct ContentView: View {
                     }
                 }
 
-                // ジェスチャ検知されなかった
+                // No gesture detected
                 return nil
             },
             handleGesture: { detection, state in
-                // ジェスチャ検知後に処理するフェーズ
+                // Gesture handling phase after detection
 
-                // 返り値:
-                // - true: 処理完了を示す。ジェスチャ処理は完全に終了する。以降、クロージャは呼ばれない。
-                // - false: 処理未完了を示す。falseを返す限り、Gesture.onChanged()やGesture.onEnded()と同様ジェスチャ状態が更新されたときに呼ばれる。DragGestureと違い、同じ座標にとどまっていても新たな座標が追加され、コールされる。
+                // Return value:
+                // - true: Indicates processing is complete. Gesture processing is completely finished. The closure will no longer be called.
+                // - false: Indicates processing is incomplete. As long as false is returned, it will be called when the gesture state is updated, similar to Gesture.onChanged() and Gesture.onEnded(). Unlike DragGesture, new coordinates are added and called even if they remain at the same location.
 
                 switch detection {
                 case .tap:
-                    print("タップ検知した")
-                    return true // trueは処理完了。完全にジェスチャ処理が終了する。
+                    print("Tap detected")
+                    return true // true means processing complete. Gesture processing is completely finished.
 
                 case .doubleTapDrag:
                     if state.detected(.drag(minimumDistance: 30)) {
                         if state.gestureValues.last?.timing == .ended {
-                            // タップ終了した
-                            detectedGestureText = "ダブルタップ + ドラッグ終了"
-                            return true // trueは処理完了。
+                            // Tap ended
+                            detectedGestureText = "Double Tap + Drag End"
+                            return true // true means processing complete.
                         } else {
-                            // タップ中
-                            print("ダブルタップ + ドラッグ中...")
-                            return false // falseは処理未完。タップが続く限り処理を続ける。
+                            // Tapping
+                            print("Double Tap + Dragging...")
+                            return false // false means processing incomplete. Continue processing as long as tap continues.
                         }
                     }
 
                 case .circle:
                     if state.gestureValues.last?.timing == .ended {
-                        detectedGestureText = "円形検知"
-                        return true // trueは処理完了。
+                        detectedGestureText = "Circle Detected"
+                        return true // true means processing complete.
                     } else {
-                        detectedGestureText = "円形描画中..."
-                        return false // falseは処理未完。タップが続く限り処理を続ける。
+                        detectedGestureText = "Drawing Circle..."
+                        return false // false means processing incomplete. Continue processing as long as tap continues.
                     }
                 }
             }
@@ -119,7 +119,7 @@ struct ContentView: View {
     }
 }
 
-/// 検知したいジェスチャ
+/// Gestures you want to detect
 enum MyGestureDetection {
     case tap
     case doubleTapDrag
@@ -136,4 +136,4 @@ func detectCircle(points: [CGPoint]) -> Bool {
 Run the project in Sample folder.
 
 ## Reference
-特になし
+None
