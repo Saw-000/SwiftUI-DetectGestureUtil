@@ -108,7 +108,7 @@ func detectCircle(points: [CGPoint]) -> Bool {
 ```
 
 ## Sample
-Run this project.
+Run the project in Sample folder.
 
 ## Reference
 特になし
