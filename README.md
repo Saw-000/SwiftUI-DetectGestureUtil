@@ -1,5 +1,7 @@
 # SwiftUI-DetectGestureUtil
 
+一つのViewに複数のカスタムジェスチャを設定し、その中の一つだけを検知させられるSwift Packageです。
+
 A Swift Package that allows you to detect only one of multiple custom gestures on a single SwiftUI View.
 
 <img width="400" alt="Simulator Screenshot - iPad (A16) - 2025-11-03 at 05 22 09" src="https://github.com/user-attachments/assets/1ee868bc-91ad-48bd-9a0a-c507ba95c56a" />
