@@ -5,6 +5,28 @@ import MyModuleCore
 public struct DetectGestureState<GestureDetection: Equatable> {
     /// ジェスチャ情報の履歴
     public var gestureValues: [DetectGestureStateValue] = []
+    
+    /// タップ毎に区切ったジェスチャ情報の履歴
+    public var tapSplittedGestureValues: [[DetectGestureStateValue]] {
+        var result: [[DetectGestureStateValue]] = []
+        var buffer: [DetectGestureStateValue] = []
+
+        // .ended毎に区切る
+        for value in gestureValues {
+            buffer.append(value)
+            if value.timing == .ended {
+                result.append(buffer)
+                buffer = []
+            }
+        }
+        
+        // 終端が.endedじゃない場合は最後の残りを追加
+        if !buffer.isEmpty {
+            result.append(buffer)
+        }
+        
+        return result
+    }
 
     /// 検知されたジェスチャ
     public var detection: GestureDetection? = nil
