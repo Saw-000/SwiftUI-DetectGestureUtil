@@ -33,7 +33,8 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
                         .onEnded { value in
                             handleGestureIfNeeded(dragGestureValue: value, geo: geometryProxy, timing: .ended)
 
-                            // 指定ジェスチャの検知とその後のハンドルが終わっていたら、タップの記録を初期化する。
+                            // ジェスチャ検知とその後のハンドルまで終わっていたら、状態を初期化する。
+                            // つまり逆を言えば、複数回のタップを跨いでジェスチャ検知やハンドルを行える。
                             if state.gestureDetected && state.handleFinished {
                                 state = DetectGestureState<GestureDetection>()
                             }
