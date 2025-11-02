@@ -9,6 +9,8 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
 
     /// return handle completion (completed: true)
     private let handleGesture: (_ detection: GestureDetection, DetectGestureState<GestureDetection>) -> Bool
+    
+    private let heartbeatTimer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
 
     init(
         state: Binding<DetectGestureState<GestureDetection>>,
@@ -40,10 +42,13 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
                             }
                         }
                 )
+                .onReceive(heartbeatTimer) { _ in
+                    handleGestureIfNeededWithHeartBeat()
+                }
         }
     }
 
-    /// ジェスチャ状態が更新された時に呼ぶ。情報を更新し、必要ならジェスチャの検知と検知後のハンドリングを行う。
+    /// 状態を更新し、ジェスチャの検知とハンドルを行う。
     private func handleGestureIfNeeded(
         dragGestureValue: DragGesture.Value,
         geo: GeometryProxy,
@@ -58,6 +63,44 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
         )
         state.gestureValues.append(value)
 
+        // ジェスチャの検知とハンドル
+        handleGestureIfNeeded()
+    }
+    
+    /// ハートビートでジェスチャの検知とハンドルを行う。
+    private func handleGestureIfNeededWithHeartBeat() {
+        // ジェスチャ検知後の処理まで終わっていたら抜ける。
+        guard !state.handleFinished else {
+            return
+        }
+        
+        // タップ開始してないなら抜ける
+        guard !state.gestureValues.isEmpty else {
+            return
+        }
+        
+        // 指が離れていたら抜ける(ここは指離れ時に何かしたくなったら変えるかも)
+        guard state.gestureValues.last?.timing != .ended else {
+            return
+        }
+        
+        // 前のジェスチャ情報をそのまま追加する。
+        guard var lastValue = state.gestureValues.last else {
+            return
+        }
+        
+        lastValue.time = Date()
+        lastValue.timing = .heartbeat
+        let value = lastValue
+        
+        state.gestureValues.append(value)
+
+        // ジェスチャの検知とハンドル
+        handleGestureIfNeeded()
+    }
+    
+    /// ジェスチャの検知とハンドル
+    private func handleGestureIfNeeded() {
         // 指定されたジェスチャが検知されたか？
         let detection: GestureDetection?
         if let existingDetection = state.detection {
@@ -69,7 +112,6 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
                 state.detection = detection
             }
         }
-
 
         // ジェスチャが検知された場合、割り当てられた処理をする。
         if state.gestureDetected, !state.handleFinished, let detection {

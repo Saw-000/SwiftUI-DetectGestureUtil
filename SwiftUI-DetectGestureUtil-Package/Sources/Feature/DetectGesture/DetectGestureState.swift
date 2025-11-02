@@ -26,22 +26,31 @@ public struct DetectGestureState<GestureDetection: Equatable> {
                 $0.timing == .ended && $0.isInView()
             })
         case let .longTap(minimumMilliSecond):
-            return gestureValues.contains(where: {
-                return -$0.time.timeIntervalSinceNow * 1000 >= minimumMilliSecond
-            })
+            var now = Date()
+            for value in gestureValues.reversed() {
+                if now.timeIntervalSince(value.time) * 1000 >= minimumMilliSecond {
+                    return true
+                }
+                
+                if value.timing == .ended {
+                    now = value.time
+                }
+            }
+            
+            return false
         }
     }
 }
 
 public struct DetectGestureStateValue {
     public enum Timing {
-        case changed, ended
+        case changed, ended, heartbeat
     }
 
     public let dragGestureValue: DragGesture.Value
     public let geometryProxy: GeometryProxy
-    public let timing: Timing
-    public let time: Date // DragGesture.Value.timeはバグがあって使えないので、自前のDateを付与
+    public var timing: Timing
+    public var time: Date // DragGesture.Value.timeはバグがあって使えないので、自前のDateを付与
 
     public func isInView() -> Bool {
         return 0 <= dragGestureValue.location.x && dragGestureValue.location.x <= geometryProxy.size.width
