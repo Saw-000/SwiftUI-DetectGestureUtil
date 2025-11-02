@@ -2,9 +2,9 @@ import SwiftUI
 
 struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
     @Binding private var state: DetectGestureState<GestureDetection>
-    
+
     private let coordinateSpace: CoordinateSpace
-    
+
     private let detectGesture: (DetectGestureState<GestureDetection>) -> GestureDetection?
 
     /// return handle completion (completed: true)
@@ -21,7 +21,7 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
         self.detectGesture = detectGesture
         self.handleGesture = handleGesture
     }
-    
+
     func body(content: Content) -> some View {
         GeometryReader { geometryProxy in
             content
@@ -32,7 +32,7 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
                         }
                         .onEnded { value in
                             handleGestureIfNeeded(dragGestureValue: value, geo: geometryProxy, timing: .ended)
-                            
+
                             // 指定ジェスチャの検知とその後のハンドルが終わっていたら、タップの記録を初期化する。
                             if state.gestureDetected && state.handleFinished {
                                 state = DetectGestureState<GestureDetection>()
@@ -41,7 +41,7 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
                 )
         }
     }
-    
+
     /// ジェスチャ状態が更新された時に呼ぶ。情報を更新し、必要ならジェスチャの検知と検知後のハンドリングを行う。
     private func handleGestureIfNeeded(
         dragGestureValue: DragGesture.Value,
@@ -52,10 +52,11 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
         let value = DetectGestureStateValue(
             dragGestureValue: dragGestureValue,
             geometryProxy: geo,
-            timing: timing
+            timing: timing,
+            time: Date()
         )
         state.gestureValues.append(value)
-        
+
         // 指定されたジェスチャが検知されたか？
         let detection: GestureDetection?
         if let existingDetection = state.detection {
@@ -67,8 +68,8 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
                 state.detection = detection
             }
         }
-        
-        
+
+
         // ジェスチャが検知された場合、割り当てられた処理をする。
         if state.gestureDetected, !state.handleFinished, let detection {
             state.handleFinished = handleGesture(detection, state)
