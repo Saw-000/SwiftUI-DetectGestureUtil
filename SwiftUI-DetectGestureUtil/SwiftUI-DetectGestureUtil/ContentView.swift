@@ -2,7 +2,7 @@ import SwiftUI
 import MyModuleFeatureDetectGesture
 
 struct ContentView: View {
-    @State private var detectGestureState = DetectGestureState<GestureDetection>()
+    @State private var detectGestureState = DetectGestureState<MyGestureDetection>()
     
     var body: some View {
         ZStack {
@@ -11,7 +11,13 @@ struct ContentView: View {
                 .detectGesture(
                     state: $detectGestureState,
                     detectGesture: { state in
-                        state.detected(.tap) ? .tap : nil
+                        if state.detected(.tap) {
+                            return .tap
+                        } else if state.detected(.longTap(minimumMilliSeconds: 1000)) {
+                            return .longTap
+                        } else {
+                            return nil
+                        }
                     },
                     handleGesture: { detection, state in
                         switch detection {
@@ -41,7 +47,7 @@ struct ContentView: View {
 }
 
 /// Wanted Detection
-enum GestureDetection: Equatable {
+enum MyGestureDetection {
     case tap
     case longTap
     case rightSwipe

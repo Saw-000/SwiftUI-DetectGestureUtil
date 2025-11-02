@@ -2,40 +2,49 @@ import SwiftUI
 
 /// State of DetectGesture
 public struct DetectGestureState<GestureDetection: Equatable> {
+    /// ジェスチャ情報の履歴
+    public var gestureValues: [DetectGestureStateValue] = []
+
+    /// 検知されたジェスチャ
     public var detection: GestureDetection? = nil
+
+    /// ジェスチャがすでに検知されたか
+    public var gestureDetected: Bool {
+        detection != nil
+    }
+
+    /// ジェスチャ検知後の処理は終わったか
     public var handleFinished: Bool = false
 
-    public var dragGestures: [DragGesture.Value] = []
-
-    public var isTapped: Bool = false
-    
     public init() {}
-    
+
+    /// 指定したデフォルトジェスチャがすでに検知されたか
     public func detected(_ defaultGesture: DefaultDetectGesture) -> Bool {
         switch defaultGesture {
         case .tap:
-            return isTapped
+            return gestureValues.contains(where: {
+                $0.timing == .ended && $0.isInView()
+            })
+        case let .longTap(minimumMilliSecond):
+            return gestureValues.contains(where: {
+                return -$0.time.timeIntervalSinceNow * 1000 >= minimumMilliSecond
+            })
         }
     }
-    
-    /// Long tap ?
-    public func isLongTap(
-        miliseconds: Int = 500
-    ) -> Bool {
-        return false // TODO: 実装
+}
+
+public struct DetectGestureStateValue {
+    public enum Timing {
+        case changed, ended
     }
-    
-    /// Swipe？
-    public func isSwipe(
-        // TODO: 方向
-    ) -> Bool {
-        return false // TODO: 実装
-    }
-    
-    /// Drag?
-    public func isDrag(
-        // TODO: 最小動かし、方向も？
-    ) -> Bool {
-        return false // TODO: 実装
+
+    public let dragGestureValue: DragGesture.Value
+    public let geometryProxy: GeometryProxy
+    public let timing: Timing
+    public let time: Date // DragGesture.Value.timeはバグがあって使えないので、自前のDateを付与
+
+    public func isInView() -> Bool {
+        return 0 <= dragGestureValue.location.x && dragGestureValue.location.x <= geometryProxy.size.width
+            && 0 <= dragGestureValue.location.y && dragGestureValue.location.y <= geometryProxy.size.height
     }
 }
