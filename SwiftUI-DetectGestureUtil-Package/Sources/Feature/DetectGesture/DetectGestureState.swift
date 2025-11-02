@@ -61,6 +61,7 @@ public struct DetectGestureState<GestureDetection: Equatable> {
                     diff.x >= minimumDistance
                 }
             })
+
         case .swipe(direction: let direction):
             return gestureValues
                 .filter { value in
@@ -80,6 +81,47 @@ public struct DetectGestureState<GestureDetection: Equatable> {
                         velocity.width >= Const.swipeMinimumVelocity
                     }
                 })
+
+        case let .sequentialTap(count, maximumTapIntervalMilliseconds):
+            guard count > 0 else {
+                return false
+            }
+            
+            let tapEndValueList = gestureValues.filter { $0.timing == .ended && $0.isInView() }
+            
+            guard tapEndValueList.count >= count else {
+                return false
+            }
+            
+            var sequentialTapCount = 1
+            var previousTapEndValue: DetectGestureStateValue? = nil
+            
+            // 連続タップ回数を数える
+            for tapEndValue in tapEndValueList {
+                if let pTapEndValue = previousTapEndValue {
+                    let isSequentialTap = tapEndValue.time.timeIntervalSince(pTapEndValue.time) * 1000 <= maximumTapIntervalMilliseconds
+                    
+                    if isSequentialTap {
+                        sequentialTapCount += 1
+                    } else {
+                        // タップ間隔が既定秒数を超えたらリセット
+                        sequentialTapCount = 1
+                    }
+                    
+                    // 連続タップ回数が既定回数を超えたら検知
+                    if sequentialTapCount >= count {
+                        return true
+                    }
+                    
+                    previousTapEndValue = tapEndValue
+                } else {
+                    previousTapEndValue = tapEndValue
+                    continue
+                }
+            }
+            
+            // 連続タップ回数が既定回数を超えることがなかった
+            return false
         }
     }
 }

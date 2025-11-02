@@ -2,13 +2,21 @@ import SwiftUI
 import MyModuleFeatureDetectGesture
 
 struct ContentView: View {
+    @State private var detectedGestureText: String? = nil
+
     @State private var detectGestureState1 = DetectGestureState<MyGestureDetection>()
     @State private var detectGestureState2 = DetectGestureState<MyGestureDetection>()
+    @State private var detectGestureState3 = DetectGestureState<MyGestureDetection>()
     
     var body: some View {
         VStack {
+            // 検知したジェスチャを表示するところ
+            Text(detectedGestureText ?? "")
+            
+            // 1個目のジェスチャ検知用View
             VStack {
-                Text("tap, long tap, drag")
+                Text("DefaultGesture:\n" + "tap\n" + "long tap\n" + "drag")
+                    .font(.title2)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(.blue)
@@ -19,7 +27,7 @@ struct ContentView: View {
                         return .tap
                     } else if state.detected(.longTap(minimumMilliSeconds: 1000)) {
                         return .longTap
-                    } else if state.detected(.drag(minimumDistance: 100)) {
+                    } else if state.detected(.drag(minimumDistance: 30)) {
                         return .drag
                     } else {
                         return nil
@@ -28,19 +36,19 @@ struct ContentView: View {
                 handleGesture: { detection, state in
                     switch detection {
                     case .tap:
-                        print("Tap Detected")
+                        detectedGestureText = "Tap Detected"
                         return true
 
                     case .longTap:
-                        print("Long Tap Detected")
+                        detectedGestureText = "Long Tap Detected"
                         return true
 
                     case .drag:
                         if state.gestureValues.last?.timing == .ended {
-                            print("Drag Detected End")
+                            detectedGestureText = "Drag Detected End"
                             return true
                         } else {
-                            print("Drag Detected location: \(state.gestureValues.last?.dragGestureValue.location)")
+                            detectedGestureText = "Drag Detected location: \(state.gestureValues.last?.dragGestureValue.location)"
                             return false
                         }
 
@@ -50,8 +58,10 @@ struct ContentView: View {
                 }
             )
             
+            // 2個目のジェスチャ検知用View
             VStack {
-                Text("right slide, top swipe, triple Tap")
+                Text("DefaultGesture:\n" + "right slide\n" + "top swipe\n" + "triple Tap")
+                    .font(.title2)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(.red)
@@ -62,6 +72,8 @@ struct ContentView: View {
                         return .rightSlide
                     } else if state.detected(.swipe(direction: .top)) {
                         return .topSwipe
+                    } else if state.detected(.sequentialTap(count: 3, maximumTapIntervalMilliseconds: 250)) {
+                        return .tripleTap
                     } else {
                         return nil
                     }
@@ -70,19 +82,19 @@ struct ContentView: View {
                     switch detection {
                     case .rightSlide:
                         if state.gestureValues.last?.timing == .ended {
-                            print("Right Slide Detected End")
+                            detectedGestureText = "Right Slide Detected End"
                             return true
                         } else {
-                            print("Right Slide Detected location: \(state.gestureValues.last?.dragGestureValue.location)")
+                            detectedGestureText = "Right Slide Detected location: \(state.gestureValues.last?.dragGestureValue.location)"
                             return false
                         }
                         
                     case .topSwipe:
-                        print("Top Swipe Detected")
+                        detectedGestureText = "Top Swipe Detected"
                         return true
 
                     case .tripleTap:
-                        print("Drag Detected")
+                        detectedGestureText = "Triple Tap Detected"
                         return true
                         
                     default:
@@ -90,6 +102,8 @@ struct ContentView: View {
                     }
                 }
             )
+            
+            // 3個目のジェスチャ検知用View
         }
         .padding()
     }
