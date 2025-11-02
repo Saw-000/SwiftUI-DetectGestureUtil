@@ -121,6 +121,14 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
 }
 
 extension View {
+    /// 複数のカスタムジェスチャを同時に設定し、そのうちの一つだけを検知するジェスチャ。
+    ///
+    /// - Note: GestureDetectionは検知したいジェスチャ。enumにするのがベター。
+    ///
+    /// - Parameters:
+    ///   - state: ジェスチャの状態を管理するBinding
+    ///   - detectGesture: 検知されたジェスチャ(ジェネリックなGestureDetection型)を返すクロージャ。Gesture.changed()と同じように、ジェスチャ状態が更新された時に呼ばれ、ジェスチャ情報が格納されたDetectGestureState型が渡される。GestureDetection型を返した場合、ジェスチャが検知されたことを示し二度と呼ばれなくなり、以降はhandleGestureが呼ばれる。nilを返し続ける限り呼ばれ続ける。また、複数回タップを跨いでハンドルできる。
+    ///   - handleGesture: 検知されたジェスチャを処理するクロージャ。detectGestureのフェーズの完了以降はこちらが呼ばれる。detectGestureで返したGestureDetection型が取れる。ハンドルが終了したかどうかという意味で完了時にBool型を返す。trueを返した場合二度と呼ばれなくなり、全てのジェスチャ処理が完全に終わり初期化される。falseを返し続ける限り、ジェスチャ状態が更新された時に呼ばれ続ける(タイミングとしてはGesture.changed()と同じ)。また、複数回タップを跨いでハンドルできる。
     public func detectGesture<GestureDetection: Equatable>(
         state: Binding<DetectGestureState<GestureDetection>>,
         coordinateSpace: CoordinateSpace = .local,
