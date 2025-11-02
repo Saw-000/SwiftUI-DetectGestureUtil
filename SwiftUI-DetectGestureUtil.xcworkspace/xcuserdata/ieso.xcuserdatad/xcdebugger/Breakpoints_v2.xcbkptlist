@@ -7,82 +7,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "A33A8A6F-776E-468F-8FBF-6E1F41227356"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "SwiftUI-DetectGestureUtil-Package/Sources/Feature/DetectGesture/DetectGestureViewModifier.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "30"
-            endingLineNumber = "30"
-            landmarkName = "body(content:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "A33A8A6F-776E-468F-8FBF-6E1F41227356 - 445b71f14320f954"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "MyModuleFeatureDetectGesture.DetectGestureViewModifier.body(content: SwiftUI._ViewModifier_Content&lt;MyModuleFeatureDetectGesture.DetectGestureViewModifier&lt;&#x3c4;_0_0&gt;&gt;) -&gt; some"
-                  moduleName = "SwiftUI-DetectGestureUtil.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/ieso/prog/XcodeProjects/SwiftUI-DetectGestureUtil/SwiftUI-DetectGestureUtil-Package/Sources/Feature/DetectGesture/DetectGestureViewModifier.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "30"
-                  endingLineNumber = "30">
-               </Location>
-               <Location
-                  uuid = "A33A8A6F-776E-468F-8FBF-6E1F41227356 - bec984b80b072205"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #2 (SwiftUI.DragGesture.Value) -&gt; () in MyModuleFeatureDetectGesture.DetectGestureViewModifier.body(content: SwiftUI._ViewModifier_Content&lt;MyModuleFeatureDetectGesture.DetectGestureViewModifier&lt;&#x3c4;_0_0&gt;&gt;) -&gt; some"
-                  moduleName = "SwiftUI-DetectGestureUtil.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/ieso/prog/XcodeProjects/SwiftUI-DetectGestureUtil/SwiftUI-DetectGestureUtil-Package/Sources/Feature/DetectGesture/DetectGestureViewModifier.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "32"
-                  endingLineNumber = "32">
-               </Location>
-               <Location
-                  uuid = "A33A8A6F-776E-468F-8FBF-6E1F41227356 - 76cf2b661cf8cc8"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (SwiftUI.DragGesture.Value) -&gt; () in MyModuleFeatureDetectGesture.DetectGestureViewModifier.body(content: SwiftUI._ViewModifier_Content&lt;MyModuleFeatureDetectGesture.DetectGestureViewModifier&lt;&#x3c4;_0_0&gt;&gt;) -&gt; some"
-                  moduleName = "SwiftUI-DetectGestureUtil.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/ieso/prog/XcodeProjects/SwiftUI-DetectGestureUtil/SwiftUI-DetectGestureUtil-Package/Sources/Feature/DetectGesture/DetectGestureViewModifier.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "30"
-                  endingLineNumber = "30">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "B3DEF45E-9E45-4DA7-8833-0CD967AF88EF"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "SwiftUI-DetectGestureUtil-Package/Sources/Feature/DetectGesture/DetectGestureViewModifier.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "47"
-            endingLineNumber = "47"
-            landmarkName = "handleGestureIfNeeded(value:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "6DF0C79E-6483-478C-AEAF-52FF39F3BDF9"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
@@ -90,16 +14,32 @@
             filePath = "SwiftUI-DetectGestureUtil-Package/Sources/Feature/DetectGesture/DetectGestureViewModifier.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "59"
-            endingLineNumber = "59"
-            landmarkName = "handleGestureIfNeeded(value:)"
+            startingLineNumber = "74"
+            endingLineNumber = "74"
+            landmarkName = "handleGestureIfNeeded(dragGestureValue:geo:timing:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "82664AA5-0CC0-4339-8768-C8478799F0B5"
+            uuid = "DA0F7570-9A74-48D0-99FA-5346569AC189"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SwiftUI-DetectGestureUtil/SwiftUI-DetectGestureUtil/ContentView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "21"
+            endingLineNumber = "21"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "413005C3-D791-4C63-BE5B-A5FCCF572D59"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -115,7 +55,7 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "6A0F4923-86DD-4375-A14F-C35C75814560"
+            uuid = "06C3EE88-0038-4B6A-99EE-32418B2269C2"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -131,17 +71,33 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "DA0F7570-9A74-48D0-99FA-5346569AC189"
+            uuid = "3328966D-2AE8-4D27-8AA3-7E4523EF7CB0"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "SwiftUI-DetectGestureUtil/SwiftUI-DetectGestureUtil/ContentView.swift"
+            filePath = "SwiftUI-DetectGestureUtil-Package/Sources/Feature/DetectGesture/DetectGestureViewModifier.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "17"
-            endingLineNumber = "17"
-            landmarkName = "body"
-            landmarkType = "24">
+            startingLineNumber = "31"
+            endingLineNumber = "31"
+            landmarkName = "body(content:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "AE6DB6E4-AA78-4F85-9B43-54F2ABA01DB8"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SwiftUI-DetectGestureUtil-Package/Sources/Feature/DetectGesture/DetectGestureViewModifier.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "60"
+            endingLineNumber = "60"
+            landmarkName = "handleGestureIfNeeded(dragGestureValue:geo:timing:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
