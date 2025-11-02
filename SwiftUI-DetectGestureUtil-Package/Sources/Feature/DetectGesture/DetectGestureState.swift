@@ -42,7 +42,9 @@ public struct DetectGestureState<GestureDetection: Equatable> {
     public init() {}
 
     /// 指定したデフォルトジェスチャがすでに検知されたか
-    public func detected(_ defaultGesture: DefaultDetectGesture) -> Bool {
+    public func detected(_ defaultGesture: DefaultDetectGesture, gestureValues: [DetectGestureStateValue]? = nil) -> Bool {
+        let gestureValues = gestureValues ?? self.gestureValues
+        
         switch defaultGesture {
         case .tap:
             return gestureValues.contains(where: {
@@ -73,9 +75,9 @@ public struct DetectGestureState<GestureDetection: Equatable> {
                 let diff = $0.dragGestureValue.diff
 
                 return switch direction {
-                case .top:
+                case .up:
                     -diff.y >= minimumDistance
-                case .bottom:
+                case .down:
                     diff.y >= minimumDistance
                 case .left:
                     -diff.x >= minimumDistance
@@ -93,9 +95,9 @@ public struct DetectGestureState<GestureDetection: Equatable> {
                     let velocity = $0.dragGestureValue.velocity
 
                     return switch direction {
-                    case .top:
+                    case .up:
                         -velocity.height >= Const.swipeMinimumVelocity
-                    case .bottom:
+                    case .down:
                         velocity.height >= Const.swipeMinimumVelocity
                     case .left:
                         -velocity.width >= Const.swipeMinimumVelocity

@@ -11,5 +11,5 @@ public enum DefaultDetectGesture {
 }
 
 public enum DefaultDetectGestureDirection {
-    case top, bottom, left, right
+    case up, down, left, right
 }
