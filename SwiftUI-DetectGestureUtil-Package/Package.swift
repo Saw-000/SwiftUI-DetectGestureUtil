@@ -20,7 +20,14 @@ let package = Package(
     targets: [
         .target(
             name: MyModule.featureDetectGesture.name,
+            dependencies: [
+                MyModule.core.dependency
+            ],
             path: MyModule.featureDetectGesture.folderPath
+        ),
+        .target(
+            name: MyModule.core.name,
+            path: MyModule.core.folderPath
         )
     ]
 )
@@ -29,10 +36,13 @@ let package = Package(
 
 // 自作モジュール
 enum MyModule {
+    case core
     case featureDetectGesture
 
     var folderPath: String {
         return switch self {
+        case .core:
+            "Sources/Core"
         case .featureDetectGesture:
             "Sources/Feature/DetectGesture"
         }

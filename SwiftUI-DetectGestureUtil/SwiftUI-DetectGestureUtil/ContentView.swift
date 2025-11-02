@@ -15,6 +15,8 @@ struct ContentView: View {
                             return .tap
                         } else if state.detected(.longTap(minimumMilliSeconds: 1000)) {
                             return .longTap
+                        } else if state.detected(.drag(minimumDistance: 50)) {
+                            return .drag
                         } else {
                             return nil
                         }
@@ -28,7 +30,13 @@ struct ContentView: View {
                         case .rightSwipe:
                             print("Right Swipe Detected")
                         case .drag:
-                            print("Drag Detected")
+                            if state.gestureValues.last?.timing == .ended {
+                                print("Drag Detected End")
+                                return true
+                            } else {
+                                print("Drag Detected location: \(state.gestureValues.last?.dragGestureValue.location)")
+                                return false
+                            }
                         case .tripleTap:
                             print("Drag Detected")
                         case .slide:

@@ -1,4 +1,5 @@
 import SwiftUI
+import MyModuleCore
 
 /// State of DetectGesture
 public struct DetectGestureState<GestureDetection: Equatable> {
@@ -25,19 +26,25 @@ public struct DetectGestureState<GestureDetection: Equatable> {
             return gestureValues.contains(where: {
                 $0.timing == .ended && $0.isInView()
             })
+
         case let .longTap(minimumMilliSecond):
             var now = Date()
             for value in gestureValues.reversed() {
                 if now.timeIntervalSince(value.time) * 1000 >= minimumMilliSecond {
                     return true
                 }
-                
+
                 if value.timing == .ended {
                     now = value.time
                 }
             }
-            
+
             return false
+
+        case let .drag(minimumDistance):
+            return gestureValues.contains(where: {
+                $0.dragGestureValue.translation.distance >= minimumDistance
+            })
         }
     }
 }
