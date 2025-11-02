@@ -4,7 +4,28 @@ SwiftUIの一つのViewに複数のカスタムジェスチャの中の一つだ
 
 ## Install
 
-Swift Package Manager
+=> Swift Package Manager
+
+```Package.swift
+// Package.swift
+
+let package = Package(
+    ...
+    dependencies: [
+        .package(url: "https://github.com/Saw-000/SwiftUI-DetectGestureUtil", from: "1.0.2")
+    ],
+    targets: [
+        .target(
+            name: "HogeModule",
+            dependencies: [
+                .product(name: "SwiftUI-DetectGestureUtil", package: "SwiftUI-DetectGestureUtil")
+            ]
+        ),
+    ]
+)
+```
+
+or by Xcode.
 
 ## Usage
 
@@ -16,7 +37,7 @@ Swift Package Manager
 
 ```swift
 import SwiftUI
-import SwiftUI-DetectGestureUtil
+import SwiftUI_DetectGestureUtil
 
 struct ContentView: View {
     // DetectGestureState<任意の検知したいジェスチャ型>をStateで持つ必要がある。
