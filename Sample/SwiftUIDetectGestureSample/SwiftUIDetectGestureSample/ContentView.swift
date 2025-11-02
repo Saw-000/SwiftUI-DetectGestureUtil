@@ -11,11 +11,11 @@ struct ContentView: View {
     var body: some View {
         VStack {
             // 検知したジェスチャを表示するところ
-            Text(detectedGestureText ?? "")
+            Text("Detected: " + (detectedGestureText ?? ""))
             
             // 1個目のジェスチャ検知用View
             VStack {
-                Text("DefaultGesture:\n" + "tap\n" + "long tap\n" + "drag")
+                Text("tap\n" + "long tap\n" + "drag")
                     .font(.title2)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -36,19 +36,19 @@ struct ContentView: View {
                 handleGesture: { detection, state in
                     switch detection {
                     case .tap:
-                        detectedGestureText = "Tap Detected"
+                        detectedGestureText = "Tap"
                         return true
 
                     case .longTap:
-                        detectedGestureText = "Long Tap Detected"
+                        detectedGestureText = "Long Tap"
                         return true
 
                     case .drag:
                         if state.gestureValues.last?.timing == .ended {
-                            detectedGestureText = "Drag Detected End"
+                            detectedGestureText = "Drag End"
                             return true
                         } else {
-                            detectedGestureText = "Drag Detected location: \(state.gestureValues.last?.dragGestureValue.location)"
+                            detectedGestureText = "Drag location: \(state.gestureValues.last?.dragGestureValue.location)"
                             return false
                         }
                     }
@@ -57,7 +57,7 @@ struct ContentView: View {
             
             // 2個目のジェスチャ検知用View
             VStack {
-                Text("DefaultGesture:\n" + "right slide\n" + "top swipe\n" + "triple Tap")
+                Text("right slide\n" + "top swipe\n" + "triple Tap")
                     .font(.title2)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -79,19 +79,19 @@ struct ContentView: View {
                     switch detection {
                     case .rightSlide:
                         if state.gestureValues.last?.timing == .ended {
-                            detectedGestureText = "Right Slide Detected End"
+                            detectedGestureText = "Right Slide End"
                             return true
                         } else {
-                            detectedGestureText = "Right Slide Detected location: \(state.gestureValues.last?.dragGestureValue.location)"
+                            detectedGestureText = "Right Slide location: \(state.gestureValues.last?.dragGestureValue.location)"
                             return false
                         }
                         
                     case .topSwipe:
-                        detectedGestureText = "Top Swipe Detected"
+                        detectedGestureText = "Top Swipe"
                         return true
 
                     case .tripleTap:
-                        detectedGestureText = "Triple Tap Detected"
+                        detectedGestureText = "Triple Tap"
                         return true
                     }
                 }
@@ -100,7 +100,7 @@ struct ContentView: View {
             ZStack {
                 // 3個目のジェスチャ検知用View
                 VStack {
-                    Text("CustomGesture:\n" + "Circle\n" + "Star & Swipe\n")
+                    Text("Circle\n" + "Star & Swipe\n")
                         .font(.title2)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -126,15 +126,15 @@ struct ContentView: View {
                         switch detection {
                         case .circle:
                             if state.gestureValues.last?.timing == .ended {
-                                detectedGestureText = "Circle Detected End"
+                                detectedGestureText = "Circle End"
                                 return true
                             } else {
-                                detectedGestureText = "Circle Detected location: \(state.gestureValues.last?.dragGestureValue.location)"
+                                detectedGestureText = "Circle location: \(state.gestureValues.last?.dragGestureValue.location)"
                                 return false
                             }
 
                         case .star_swipe:
-                            detectedGestureText = "Star Detected"
+                            detectedGestureText = "Star"
                             
                             // スワイプされたら終了
                             guard
