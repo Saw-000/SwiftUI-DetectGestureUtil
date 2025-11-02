@@ -15,8 +15,10 @@ struct ContentView: View {
                             return .tap
                         } else if state.detected(.longTap(minimumMilliSeconds: 1000)) {
                             return .longTap
-                        } else if state.detected(.drag(minimumDistance: 50)) {
+                        } else if state.detected(.drag(minimumDistance: 100)) {
                             return .drag
+                        } else if state.detected(.slide(direction: .right, minimumDistance: 50)) {
+                            return .rightSlide
                         } else {
                             return nil
                         }
@@ -27,8 +29,6 @@ struct ContentView: View {
                             print("Tap Detected")
                         case .longTap:
                             print("Long Tap Detected")
-                        case .rightSwipe:
-                            print("Right Swipe Detected")
                         case .drag:
                             if state.gestureValues.last?.timing == .ended {
                                 print("Drag Detected End")
@@ -37,10 +37,22 @@ struct ContentView: View {
                                 print("Drag Detected location: \(state.gestureValues.last?.dragGestureValue.location)")
                                 return false
                             }
+
+                        case .rightSlide:
+                            if state.gestureValues.last?.timing == .ended {
+                                print("Right Slide Detected End")
+                                return true
+                            } else {
+                                print("Right Slide Detected location: \(state.gestureValues.last?.dragGestureValue.location)")
+                                return false
+                            }
+                            
+                        case .leftSwipe:
+                            print("Left Swipe Detected")
+
                         case .tripleTap:
                             print("Drag Detected")
-                        case .slide:
-                            print("Drag Detected")
+                    
                         }
                         return true
                     }
@@ -58,8 +70,8 @@ struct ContentView: View {
 enum MyGestureDetection {
     case tap
     case longTap
-    case rightSwipe
     case drag
+    case rightSlide
+    case leftSwipe
     case tripleTap
-    case slide
 }

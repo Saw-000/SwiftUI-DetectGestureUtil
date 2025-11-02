@@ -45,6 +45,22 @@ public struct DetectGestureState<GestureDetection: Equatable> {
             return gestureValues.contains(where: {
                 $0.dragGestureValue.translation.distance >= minimumDistance
             })
+
+        case let .slide(direction, minimumDistance):
+            return gestureValues.contains(where: {
+                let diff = $0.dragGestureValue.diff
+
+                return switch direction {
+                case .top:
+                    -diff.y >= minimumDistance
+                case .bottom:
+                    diff.y >= minimumDistance
+                case .left:
+                    -diff.x >= minimumDistance
+                case .right:
+                    diff.x >= minimumDistance
+                }
+            })
         }
     }
 }
