@@ -10,10 +10,10 @@ struct ContentView: View {
 
     var body: some View {
         VStack {
-            // 検知したジェスチャを表示するところ
+            // Display detected gesture
             Text("Detected: " + (detectedGestureText ?? ""))
-            
-            // 1個目のジェスチャ検知用View
+
+            // First gesture detection view
             VStack {
                 Text("tap\n" + "long tap\n" + "drag")
                     .font(.title2)
@@ -54,8 +54,8 @@ struct ContentView: View {
                     }
                 }
             )
-            
-            // 2個目のジェスチャ検知用View
+
+            // Second gesture detection view
             VStack {
                 Text("right slide\n" + "top swipe\n" + "triple Tap")
                     .font(.title2)
@@ -96,9 +96,10 @@ struct ContentView: View {
                     }
                 }
             )
-            
+
+
             ZStack {
-                // 3個目のジェスチャ検知用View
+                // Third gesture detection view
                 VStack {
                     Text("Circle\n" + "Star & Swipe\n")
                         .font(.title2)
@@ -110,7 +111,7 @@ struct ContentView: View {
                     detectGesture: { state in
                         for values in state.tapSplittedGestureValues {
                             let points = values
-                                .filter { $0.timing != .heartbeat } // 動いた時だけの座標を取りたい。
+                                .filter { $0.timing != .heartbeat } // Get coordinates only when moved.
                                 .map { $0.dragGestureValue.location }
                             
                             if detectStar(points: points) {
@@ -135,8 +136,8 @@ struct ContentView: View {
 
                         case .star_swipe:
                             detectedGestureText = "Star"
-                            
-                            // スワイプされたら終了
+
+                            // End when swiped
                             guard
                                 var lastTapPoints = state.tapSplittedGestureValues.last,
                                 lastTapPoints.count >= 2
@@ -160,8 +161,8 @@ struct ContentView: View {
                         }
                     }
                 )
-                
-                // 描画の軌跡
+
+                // Drawing trajectory
                 Path { path in
                     detectGestureState3.tapSplittedGestureValues.forEach { gestureValues in
                         let points = gestureValues.map { $0.dragGestureValue.location }
@@ -185,35 +186,43 @@ struct ContentView: View {
 
 /// Wanted Gesture Detection
 enum MyGestureDetection1 {
+    /// Single tap gesture
     case tap
+    /// Long tap gesture
     case longTap
+    /// Drag gesture
     case drag
 }
 
 /// Wanted Gesture Detection
 enum MyGestureDetection2 {
+    /// Slide to the right
     case rightSlide
+    /// Swipe upward
     case topSwipe
+    /// Triple tap gesture
     case tripleTap
 }
 
 /// Wanted Gesture Detection
 enum MyGestureDetection3 {
+    /// Circle drawing gesture
     case circle
+    /// Star drawing followed by swipe gesture
     case star_swipe
 }
 
-// MARK: - 図形検知のアルゴリズム
-/// 簡易的な円判定
+// MARK: - Shape detection algorithms
+/// Simple circle detection
 private func detectCircle(points: [CGPoint]) -> Bool {
     guard points.count > 100 else { return false }
     let first = points.first!
     let last = points.last!
 
-    // 始点と終点の距離
+    // Distance between start and end points
     let dist = hypot(first.x - last.x, first.y - last.y)
 
-    // 半径（中心点から各点までの距離）の分散（バラつき）を計算。
+    // Calculate variance (variation) of radius (distance from center to each point).
     let center = CGPoint(
         x: points.map{$0.x}.reduce(0,+)/CGFloat(points.count),
         y: points.map{$0.y}.reduce(0,+)/CGFloat(points.count)
@@ -222,22 +231,22 @@ private func detectCircle(points: [CGPoint]) -> Bool {
     let mean = radii.reduce(0,+)/CGFloat(radii.count)
     let variance = radii.map{ pow($0 - mean, 2.0) }.reduce(0,+) / CGFloat(radii.count)
 
-    // 角数の計算: 急角度変化が少ない場合のみ円とみなす
+    // Calculate number of corners: consider as circle only if there are few sharp angle changes
     let angles = calculateTurningAngles(points: points)
-    let peakCount = angles.filter { abs($0) > 50 }.count // 角度しきい値は調整可
-    if peakCount > 4 { return false } // 角数（ピーク数）が多い場合は円ではない
+    let peakCount = angles.filter { abs($0) > 50 }.count // Angle threshold is adjustable
+    if peakCount > 4 { return false } // Not a circle if there are many corners (peaks)
 
-    // 「始点と終点が近い」かつ「座標群の距離の分散が小さい」かつ「頂点がほぼない」なら円にする
+    // Consider as circle if "start and end points are close" and "variance of coordinate distances is small" and "almost no vertices"
     return dist < 40 && variance < 600 && peakCount < 3
 }
 
-/// 簡易的な星型検知
+/// Simple star shape detection
 func detectStar(points: [CGPoint], angleThreshold: CGFloat = 60, closedDistanceRatio: CGFloat = 0.25, minPoints: Int = 42) -> Bool {
     guard points.count > minPoints else { return false }
     let angles = calculateTurningAngles(points: points)
     let anglePeaks = angles.enumerated()
         .filter { abs($0.element) > angleThreshold }
-        // 前回や直前とのピーク位置が一定以上離れている場合だけ採用
+        // Only adopt if peak position is more than a certain distance from previous or last
         .reduce(into: [Int]()) { result, next in
             if let last = result.last, next.offset - last < 5 { return }
             result.append(next.offset)
@@ -247,22 +256,22 @@ func detectStar(points: [CGPoint], angleThreshold: CGFloat = 60, closedDistanceR
     let last = points.last!
     let dist = hypot(first.x - last.x, first.y - last.y)
     let perim = totalLength(points)
-    // 始点終点が描画範囲に対して十分近い
+    // Start and end points are sufficiently close relative to drawing range
     if dist > perim * closedDistanceRatio { return false }
-    
-    // ピーク回数（誤検知防止のため範囲を厳守）
+
+    // Number of peaks (strictly follow range to prevent false detection)
     if anglePeaks.count < 8 || anglePeaks.count > 12 { return false }
 
     return true
 }
 
-/// 2点間距離の累積
+/// Accumulated distance between two points
 private func totalLength(_ points: [CGPoint]) -> CGFloat {
     guard points.count > 1 else { return 0 }
     return zip(points, points.dropFirst()).map { hypot($0.0.x - $0.1.x, $0.0.y - $0.1.y) }.reduce(0, +)
 }
 
-/// 軌跡の進行方向角度の変化リストを返す
+/// Returns list of trajectory direction angle changes
 private func calculateTurningAngles(points: [CGPoint]) -> [CGFloat] {
     guard points.count > 2 else { return [] }
     var angles: [CGFloat] = []
@@ -273,7 +282,7 @@ private func calculateTurningAngles(points: [CGPoint]) -> [CGFloat] {
         let v1 = CGPoint(x: b.x - a.x, y: b.y - a.y)
         let v2 = CGPoint(x: c.x - b.x, y: c.y - b.y)
         let angle = atan2(v2.y, v2.x) - atan2(v1.y, v1.x)
-        angles.append(angle * 180 / .pi) // 度数で返す
+        angles.append(angle * 180 / .pi) // Return in degrees
     }
     return angles
 }

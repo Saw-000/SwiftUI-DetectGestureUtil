@@ -3,15 +3,15 @@ import MyModuleCore
 
 /// State of DetectGesture
 public struct DetectGestureState<GestureDetection: Equatable> {
-    /// ジェスチャ情報の履歴
+    /// History of gesture information
     public var gestureValues: [DetectGestureStateValue] = []
-    
-    /// タップ毎に区切ったジェスチャ情報の履歴
+
+    /// History of gesture information separated by tap
     public var tapSplittedGestureValues: [[DetectGestureStateValue]] {
         var result: [[DetectGestureStateValue]] = []
         var buffer: [DetectGestureStateValue] = []
 
-        // .ended毎に区切る
+        // Separate at each .ended
         for value in gestureValues {
             buffer.append(value)
             if value.timing == .ended {
@@ -19,29 +19,29 @@ public struct DetectGestureState<GestureDetection: Equatable> {
                 buffer = []
             }
         }
-        
-        // 終端が.endedじゃない場合は最後の残りを追加
+
+        // Add the remaining buffer if the end is not .ended
         if !buffer.isEmpty {
             result.append(buffer)
         }
-        
+
         return result
     }
 
-    /// 検知されたジェスチャ
+    /// Detected gesture
     public var detection: GestureDetection? = nil
 
-    /// ジェスチャがすでに検知されたか
+    /// Whether gesture has already been detected
     public var gestureDetected: Bool {
         detection != nil
     }
 
-    /// ジェスチャ検知後の処理は終わったか
+    /// Whether handling after gesture detection is finished
     public var handleFinished: Bool = false
 
     public init() {}
 
-    /// 指定したデフォルトジェスチャがすでに検知されたか
+    /// Whether the specified default gesture has already been detected
     public func detected(_ defaultGesture: DefaultDetectGesture, gestureValues: [DetectGestureStateValue]? = nil) -> Bool {
         let gestureValues = gestureValues ?? self.gestureValues
         
@@ -119,53 +119,67 @@ public struct DetectGestureState<GestureDetection: Equatable> {
             
             var sequentialTapCount = 1
             var previousTapEndValue: DetectGestureStateValue? = nil
-            
-            // 連続タップ回数を数える
+
+            // Count sequential tap count
             for tapEndValue in tapEndValueList {
                 if let pTapEndValue = previousTapEndValue {
                     let isSequentialTap = tapEndValue.time.timeIntervalSince(pTapEndValue.time) * 1000 <= maximumTapIntervalMilliseconds
-                    
+
                     if isSequentialTap {
                         sequentialTapCount += 1
                     } else {
-                        // タップ間隔が既定秒数を超えたらリセット
+                        // Reset if tap interval exceeds specified seconds
                         sequentialTapCount = 1
                     }
-                    
-                    // 連続タップ回数が既定回数を超えたら検知
+
+                    // Detect if sequential tap count exceeds specified count
                     if sequentialTapCount >= count {
                         return true
                     }
-                    
+
                     previousTapEndValue = tapEndValue
                 } else {
                     previousTapEndValue = tapEndValue
                     continue
                 }
             }
-            
-            // 連続タップ回数が既定回数を超えることがなかった
+
+            // Sequential tap count never exceeded specified count
             return false
         }
     }
 }
 
+/// Value containing gesture state information
 public struct DetectGestureStateValue {
+    /// Timing of gesture state update
     public enum Timing {
-        case changed, ended, heartbeat
+        /// Gesture changed
+        case changed
+        /// Gesture ended
+        case ended
+        /// Periodic update while gesture is active
+        case heartbeat
     }
 
+    /// Drag gesture value from SwiftUI
     public let dragGestureValue: DragGesture.Value
+    /// Geometry proxy for view bounds
     public let geometryProxy: GeometryProxy
+    /// Timing of this state update
     public var timing: Timing
-    public var time: Date // DragGesture.Value.timeはバグがあって使えないので、自前のDateを付与
+    /// Timestamp of this state (using custom Date because DragGesture.Value.time has bugs)
+    public var time: Date
 
+    /// Check if gesture location is within view bounds
     public func isInView() -> Bool {
         return 0 <= dragGestureValue.location.x && dragGestureValue.location.x <= geometryProxy.size.width
             && 0 <= dragGestureValue.location.y && dragGestureValue.location.y <= geometryProxy.size.height
     }
 }
 
+/// Constants for gesture detection
 private struct Const {
+    /// Minimum velocity for swipe gesture detection
     static let swipeMinimumVelocity: CGFloat = 300
 }
