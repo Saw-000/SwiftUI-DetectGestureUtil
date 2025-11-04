@@ -45,6 +45,13 @@ It is divided into two phases: the gesture detection phase and the gesture handl
 import SwiftUI
 import SwiftUI_DetectGestureUtil
 
+/// Gestures you want to detect
+enum MyGestureDetection {
+    case tap
+    case doubleTapDrag
+    case circle
+}
+
 struct ContentView: View {
     // You need to hold DetectGestureState<Your desired gesture type> as State.
     @State private var detectGestureState = DetectGestureState<MyGestureDetection>()
@@ -55,14 +62,15 @@ struct ContentView: View {
         }
         .detectGesture(
             state: $detectGestureState,
-            detectGesture: { state in
+            detectGesture: { state in // an instance of DetectGestureState<MyGestureDetection>. See DetectGestureState type to know gesture information you can get from this instance.
+
                 // Gesture detection phase
 
                 // Return value:
                 // - Non-nil: Indicates that a gesture was detected and returns the detected gesture. The gesture detection phase is then complete and this closure will no longer be called. From then on, handleGesture will be called.
                 // - nil: Indicates that no gesture was detected. As long as nil is returned, it will be called when the gesture state is updated, similar to Gesture.onChanged() and Gesture.onEnded(). Unlike DragGesture, new coordinates are added and called even if they remain at the same location.
 
-                if state.detected(.tap) { // Several default gesture detections are provided.
+                if state.detected(.tap) { // Several default gesture detections are provided. See DefaultDetectGesture type.
                     // Detect tap gesture
                     return .tap
                 } else if state.detected(.sequentialTap(count: 2, maximumTapIntervalMilliseconds: 250)) && state.detected(.drag) {
@@ -121,15 +129,7 @@ struct ContentView: View {
     }
 }
 
-/// Gestures you want to detect
-enum MyGestureDetection {
-    case tap
-    case doubleTapDrag
-    case circle
-}
-
-
-func detectCircle(points: [CGPoint]) -> Bool {
+private func detectCircle(points: [CGPoint]) -> Bool {
     ...
 }
 ```
