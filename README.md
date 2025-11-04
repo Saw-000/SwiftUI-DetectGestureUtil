@@ -98,7 +98,7 @@ struct ContentView: View {
                     if state.detected(.drag(minimumDistance: 30)) {
                         if state.gestureValues.last?.timing == .ended {
                             // Tap ended
-                            detectedGestureText = "Double Tap + Drag End"
+                            print("Double Tap + Drag End")
                             return true // true means processing complete.
                         } else {
                             // Tapping
@@ -109,10 +109,10 @@ struct ContentView: View {
 
                 case .circle:
                     if state.gestureValues.last?.timing == .ended {
-                        detectedGestureText = "Circle Detected"
+                        print("Circle Detected")
                         return true // true means processing complete.
                     } else {
-                        detectedGestureText = "Drawing Circle..."
+                        print("Drawing Circle...")
                         return false // false means processing incomplete. Continue processing as long as tap continues.
                     }
                 }
