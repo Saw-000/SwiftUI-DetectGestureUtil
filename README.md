@@ -137,6 +137,8 @@ private func detectCircle(points: [CGPoint]) -> Bool {
 ```
 
 ### Default Gesture Detection
+Tap, double tap, swipe, etc.
+
 See this class: [DefaultDetectGesture](Sources/Feature/DetectGesture/DefaultDetectGesture.swift#L5)
 
 ## Caution
