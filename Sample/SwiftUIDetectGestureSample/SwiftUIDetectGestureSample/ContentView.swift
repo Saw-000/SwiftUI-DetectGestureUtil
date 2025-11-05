@@ -4,9 +4,7 @@ import SwiftUI_DetectGestureUtil
 struct ContentView: View {
     @State private var detectedGestureText: String? = nil
 
-    @State private var detectGestureState1 = DetectGestureState<MyGestureDetection1>()
-    @State private var detectGestureState2 = DetectGestureState<MyGestureDetection2>()
-    @State private var detectGestureState3 = DetectGestureState<MyGestureDetection3>()
+    @State private var detectGestureState3: DetectGestureState<MyGestureDetection3>? = nil
 
     var body: some View {
         VStack {
@@ -21,7 +19,7 @@ struct ContentView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(.blue)
             .detectGesture(
-                state: $detectGestureState1,
+                MyGestureDetection1.self,
                 detectGesture: { state in
                     if state.detected(.tap) {
                         return .tap
@@ -63,7 +61,7 @@ struct ContentView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(.red)
             .detectGesture(
-                state: $detectGestureState2,
+                MyGestureDetection2.self,
                 detectGesture: { state in
                     if state.detected(.slide(direction: .right, minimumDistance: 50)) {
                         return .rightSlide
@@ -85,7 +83,7 @@ struct ContentView: View {
                             detectedGestureText = "Right Slide location: \(state.gestureValues.last?.dragGestureValue.location)"
                             return false
                         }
-                        
+
                     case .topSwipe:
                         detectedGestureText = "Top Swipe"
                         return true
@@ -107,23 +105,27 @@ struct ContentView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(.orange)
                 .detectGesture(
-                    state: $detectGestureState3,
+                    MyGestureDetection3.self,
                     detectGesture: { state in
+                        detectGestureState3 = state
+
                         for values in state.tapSplittedGestureValues {
                             let points = values
                                 .filter { $0.timing != .heartbeat } // Get coordinates only when moved.
                                 .map { $0.dragGestureValue.location }
-                            
+
                             if detectStar(points: points) {
                                 return .star_swipe
                             } else if detectCircle(points: points) {
                                 return .circle
                             }
                         }
-                        
+
                         return nil
                     },
                     handleGesture: { detection, state in
+                        detectGestureState3 = state
+
                         switch detection {
                         case .circle:
                             if state.gestureValues.last?.timing == .ended {
@@ -144,9 +146,9 @@ struct ContentView: View {
                             else {
                                 return false
                             }
-                            
+
                             lastTapPoints = lastTapPoints.filter { $0.timing != .heartbeat }
-                            
+
                             if
                                 state.detected(.swipe(direction: .up), gestureValues: lastTapPoints)
                                     || state.detected(.swipe(direction: .left), gestureValues: lastTapPoints)
@@ -156,15 +158,18 @@ struct ContentView: View {
                                 detectedGestureText = "Star Swiped!"
                                 return true
                             }
-                            
+
                             return false
                         }
+                    },
+                    gestureEnded: { _, _ in
+                        detectGestureState3 = nil
                     }
                 )
 
                 // Drawing trajectory
                 Path { path in
-                    detectGestureState3.tapSplittedGestureValues.forEach { gestureValues in
+                    detectGestureState3?.tapSplittedGestureValues.forEach { gestureValues in
                         let points = gestureValues.map { $0.dragGestureValue.location }
                         guard let first = points.first else { return }
                         path.move(to: first)
