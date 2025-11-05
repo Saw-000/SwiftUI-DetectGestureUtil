@@ -4,6 +4,8 @@ import SwiftUI
 struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
     /// Gesture state binding
     @Binding private var state: DetectGestureState<GestureDetection>
+    
+    @State private var geometry: GeometryProxy? = nil
 
     /// Coordinate space for gesture tracking
     private let coordinateSpace: CoordinateSpace
@@ -30,35 +32,49 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
     }
 
     func body(content: Content) -> some View {
-        GeometryReader { geometryProxy in
-            content
-                .gesture(
-                    DragGesture(minimumDistance: 0, coordinateSpace: coordinateSpace)
-                        .onChanged { value in
-                            handleGestureIfNeeded(dragGestureValue: value, geo: geometryProxy, timing: .changed)
+        content
+            .background(
+                // GeometryReaderを背景に配置
+                GeometryReader { geo in
+                    Color.clear
+                        .onAppear {
+                            geometry = geo
                         }
-                        .onEnded { value in
-                            handleGestureIfNeeded(dragGestureValue: value, geo: geometryProxy, timing: .ended)
-
-                            // If gesture detection and subsequent handling are complete, reset the state.
-                            // In other words, gesture detection and handling can span multiple taps.
-                            if state.gestureDetected && state.handleFinished {
-                                state = DetectGestureState<GestureDetection>()
-                            }
+                        .onChange(of: geo.size) { _ in
+                            geometry = geo
                         }
-                )
-                .onReceive(heartbeatTimer) { _ in
-                    handleGestureIfNeededWithHeartBeat()
                 }
-        }
+            )
+            .gesture(
+                DragGesture(minimumDistance: 0, coordinateSpace: coordinateSpace)
+                    .onChanged { value in
+                        handleGestureIfNeeded(dragGestureValue: value, geo: geometry, timing: .changed)
+                    }
+                    .onEnded { value in
+                        handleGestureIfNeeded(dragGestureValue: value, geo: geometry, timing: .ended)
+
+                        // If gesture detection and subsequent handling are complete, reset the state.
+                        // In other words, gesture detection and handling can span multiple taps.
+                        if state.gestureDetected && state.handleFinished {
+                            state = DetectGestureState<GestureDetection>()
+                        }
+                    }
+            )
+            .onReceive(heartbeatTimer) { _ in
+                handleGestureIfNeededWithHeartBeat()
+            }
     }
 
     /// Update state and perform gesture detection and handling.
     private func handleGestureIfNeeded(
         dragGestureValue: DragGesture.Value,
-        geo: GeometryProxy,
+        geo: GeometryProxy?,
         timing: DetectGestureStateValue.Timing
     ) {
+        guard let geo else {
+            return
+        }
+
         // Record new value
         let value = DetectGestureStateValue(
             dragGestureValue: dragGestureValue,
