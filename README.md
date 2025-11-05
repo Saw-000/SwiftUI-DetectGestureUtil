@@ -67,7 +67,7 @@ struct ContentView: View {
                 // - Non-nil: Indicates that a gesture was detected and returns the detected gesture. The gesture detection phase is then complete and this closure will no longer be called. From then on, handleGesture will be called.
                 // - nil: Indicates that no gesture was detected. As long as nil is returned, it will be called when the gesture state is updated, similar to Gesture.onChanged() and Gesture.onEnded(). Unlike DragGesture, new coordinates are added and called even if they remain at the same location.
 
-                if state.detected(.tap) { // Several default gesture detections are provided. See DefaultDetectGesture type.
+                if state.detected(.tap) { // Several default gesture detections are provided. See [DefaultDetectGesture](Sources/Feature/DetectGesture/DefaultDetectGesture.swift#L5) type.
                     // Detect tap gesture
                     return .tap
                 } else if state.detected(.sequentialTap(count: 2, maximumTapIntervalMilliseconds: 250)) && state.detected(.drag) {
