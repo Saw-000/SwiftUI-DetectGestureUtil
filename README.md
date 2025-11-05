@@ -18,7 +18,7 @@ A Swift Package that allows you to detect only one of multiple custom gestures o
 let package = Package(
     ...
     dependencies: [
-        .package(url: "https://github.com/Saw-000/SwiftUI-DetectGestureUtil", from: "1.0.2")
+        .package(url: "https://github.com/Saw-000/SwiftUI-DetectGestureUtil", from: "<version>")
     ],
     targets: [
         .target(
