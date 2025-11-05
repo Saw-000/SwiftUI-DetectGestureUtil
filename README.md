@@ -53,15 +53,12 @@ enum MyGestureDetection {
 }
 
 struct ContentView: View {
-    // You need to hold DetectGestureState<Your desired gesture type> as State.
-    @State private var detectGestureState = DetectGestureState<MyGestureDetection>()
-
     var body: some View {
         VStack {
             Text("Gestures: Tap, Double Tap + Drag, Circle")
         }
         .detectGesture(
-            state: $detectGestureState,
+            MyGestureDetection.self,
             detectGesture: { state in // an instance of DetectGestureState<MyGestureDetection>. See DetectGestureState type to know gesture information you can get from this instance.
 
                 // Gesture detection phase
@@ -124,6 +121,11 @@ struct ContentView: View {
                         return false // false means processing incomplete. Continue processing as long as tap continues.
                     }
                 }
+            },
+            gestureEnded: { detection, state in
+                // Optional: Called immediately after handleGesture returns true
+                // Useful for cleanup or state reset operations
+                print("Gesture ended: \(detection)")
             }
         )
     }
