@@ -16,7 +16,7 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
     /// Closure to handle detected gesture, returns handle completion (completed: true)
     private let handleGesture: (_ detection: GestureDetection, DetectGestureState<GestureDetection>) -> HandleGestureReturn
 
-    /// Optional closure called when gesture handling completes (right after handleGesture returns true)
+    /// Optional closure called when gesture handling completes (right after handleGesture returns .finished)
     private let gestureEnded: ((_ detection: GestureDetection, DetectGestureState<GestureDetection>) -> Void)?
 
     /// Timer for periodic gesture state updates
@@ -170,8 +170,8 @@ extension View {
     ///   - gestureType: The type of gesture to detect
     ///   - coordinateSpace: The coordinate space for gesture tracking
     ///   - detectGesture: Closure that returns the detected gesture (generic GestureDetection type). Like Gesture.changed(), it is called when the gesture state is updated and is passed a DetectGestureState containing gesture information. If it returns a GestureDetection type, it indicates the gesture was detected and will not be called again; from then on, handleGesture will be called. It continues to be called as long as it returns nil. It can also handle across multiple taps.
-    ///   - handleGesture: Closure that processes the detected gesture. This is called after the detectGesture phase completes. It receives the GestureDetection type returned by detectGesture. It returns a Bool upon completion to indicate whether handling is finished. If it returns true, it will not be called again, and all gesture processing is completely finished and reset. As long as it returns false, it continues to be called when the gesture state is updated (timing is the same as Gesture.changed()). It can also handle across multiple taps.
-    ///   - gestureEnded: Optional closure called immediately after handleGesture returns true, indicating gesture handling has completed. Useful for cleanup or state reset operations.
+    ///   - handleGesture: Closure that processes the detected gesture. This is called after the detectGesture phase completes. It receives the GestureDetection type returned by detectGesture. It returns a HandleGestureReturn enum to indicate whether handling is finished. If it returns .finished, it will not be called again, and all gesture processing is completely finished and reset. As long as it returns .yet, it continues to be called when the gesture state is updated (timing is the same as Gesture.changed()). It can also handle across multiple taps.
+    ///   - gestureEnded: Optional closure called immediately after handleGesture returns .finished, indicating gesture handling has completed. Useful for cleanup or state reset operations.
     public func detectGesture<GestureDetection: Equatable>(
         _ gestureType: GestureDetection.Type,
         coordinateSpace: CoordinateSpace = .local,

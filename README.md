@@ -91,39 +91,39 @@ struct ContentView: View {
                 // Gesture handling phase after detection
 
                 // Return value:
-                // - true: Indicates processing is complete. Gesture processing is completely finished. The closure will no longer be called.
-                // - false: Indicates processing is incomplete. As long as false is returned, it will be called when the gesture state is updated, similar to Gesture.onChanged() and Gesture.onEnded(). Unlike DragGesture, new coordinates are added and called even if they remain at the same location.
+                // - .finished: Indicates processing is complete. Gesture processing is completely finished. The closure will no longer be called.
+                // - .yet: Indicates processing is incomplete. As long as .yet is returned, it will be called when the gesture state is updated, similar to Gesture.onChanged() and Gesture.onEnded(). Unlike DragGesture, new coordinates are added and called even if they remain at the same location.
 
                 switch detection {
                 case .tap:
                     print("Tap detected")
-                    return true // true means processing complete. Gesture processing is completely finished.
+                    return .finished // .finished means processing complete. Gesture processing is completely finished.
 
                 case .doubleTapDrag:
                     if state.detected(.drag(minimumDistance: 30)) {
                         if state.gestureValues.last?.timing == .ended {
                             // Tap ended
                             print("Double Tap + Drag End")
-                            return true // true means processing complete.
+                            return .finished // .finished means processing complete.
                         } else {
                             // Tapping
                             print("Double Tap + Dragging...")
-                            return false // false means processing incomplete. Continue processing as long as tap continues.
+                            return .yet // .yet means processing incomplete. Continue processing as long as tap continues.
                         }
                     }
 
                 case .circle:
                     if state.gestureValues.last?.timing == .ended {
                         print("Circle Detected")
-                        return true // true means processing complete.
+                        return .finished // .finished means processing complete.
                     } else {
                         print("Drawing Circle...")
-                        return false // false means processing incomplete. Continue processing as long as tap continues.
+                        return .yet // .yet means processing incomplete. Continue processing as long as tap continues.
                     }
                 }
             },
             gestureEnded: { detection, state in
-                // Optional: Called immediately after handleGesture returns true
+                // Optional: Called immediately after handleGesture returns .finished
                 // Useful for cleanup or state reset operations
                 print("Gesture ended: \(detection)")
             }
