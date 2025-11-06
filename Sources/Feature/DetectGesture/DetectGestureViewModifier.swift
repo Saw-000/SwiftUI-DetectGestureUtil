@@ -14,7 +14,7 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
     private let detectGesture: (DetectGestureState<GestureDetection>) -> GestureDetection?
 
     /// Closure to handle detected gesture, returns handle completion (completed: true)
-    private let handleGesture: (_ detection: GestureDetection, DetectGestureState<GestureDetection>) -> Bool
+    private let handleGesture: (_ detection: GestureDetection, DetectGestureState<GestureDetection>) -> HandleGestureReturn
 
     /// Optional closure called when gesture handling completes (right after handleGesture returns true)
     private let gestureEnded: ((_ detection: GestureDetection, DetectGestureState<GestureDetection>) -> Void)?
@@ -25,7 +25,7 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
     init(
         coordinateSpace: CoordinateSpace = .local,
         detectGesture: @escaping (DetectGestureState<GestureDetection>) -> GestureDetection?,
-        handleGesture: @escaping (_ detection: GestureDetection, DetectGestureState<GestureDetection>) -> Bool,
+        handleGesture: @escaping (_ detection: GestureDetection, DetectGestureState<GestureDetection>) -> HandleGestureReturn,
         gestureEnded: ((_ detection: GestureDetection, DetectGestureState<GestureDetection>) -> Void)? = nil
     ) {
         self.coordinateSpace = coordinateSpace
@@ -147,7 +147,7 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
 
         // If gesture was detected, perform the assigned processing.
         if state.gestureDetected, !state.handleFinished, let detection {
-            state.handleFinished = handleGesture(detection, state)
+            state.handleFinished = handleGesture(detection, state) == .finished
 
             // Call gestureEnded callback when handling is complete
             if state.handleFinished {
@@ -155,6 +155,10 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
             }
         }
     }
+}
+
+public enum HandleGestureReturn {
+    case yet, finished
 }
 
 extension View {
@@ -172,7 +176,7 @@ extension View {
         _ gestureType: GestureDetection.Type,
         coordinateSpace: CoordinateSpace = .local,
         detectGesture: @escaping (DetectGestureState<GestureDetection>) -> GestureDetection?,
-        handleGesture: @escaping (_ detection: GestureDetection, DetectGestureState<GestureDetection>) -> Bool,
+        handleGesture: @escaping (_ detection: GestureDetection, DetectGestureState<GestureDetection>) -> HandleGestureReturn,
         gestureEnded: ((_ detection: GestureDetection, DetectGestureState<GestureDetection>) -> Void)? = nil
     ) -> some View {
         self.modifier(DetectGestureViewModifier<GestureDetection>(coordinateSpace: coordinateSpace, detectGesture: detectGesture, handleGesture: handleGesture, gestureEnded: gestureEnded))
