@@ -51,10 +51,10 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
             .gesture(
                 DragGesture(minimumDistance: 0, coordinateSpace: coordinateSpace)
                     .onChanged { value in
-                        handleGestureIfNeeded(dragGestureValue: value, geo: geometry, timing: .changed)
+                        processGesture(dragGestureValue: value, geo: geometry, timing: .changed)
                     }
                     .onEnded { value in
-                        handleGestureIfNeeded(dragGestureValue: value, geo: geometry, timing: .ended)
+                        processGesture(dragGestureValue: value, geo: geometry, timing: .ended)
 
                         // If gesture detection and subsequent handling are complete, reset the state.
                         // In other words, gesture detection and handling can span multiple taps.
@@ -64,12 +64,12 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
                     }
             )
             .onReceive(heartbeatTimer) { _ in
-                handleGestureIfNeededWithHeartBeat()
+                processGestureWithHeartBeat()
             }
     }
 
     /// Update state and perform gesture detection and handling.
-    private func handleGestureIfNeeded(
+    private func processGesture(
         dragGestureValue: DragGesture.Value,
         geo: GeometryProxy?,
         timing: DetectGestureStateValue.Timing
@@ -92,11 +92,11 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
         state.gestureValues.append(value)
 
         // Detect and handle gesture
-        handleGestureIfNeeded()
+        processGesture()
     }
 
     /// Perform gesture detection and handling with heartbeat.
-    private func handleGestureIfNeededWithHeartBeat() {
+    private func processGestureWithHeartBeat() {
         // Exit if processing after gesture detection is finished.
         guard !state.handleFinished else {
             return
@@ -124,11 +124,11 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
         state.gestureValues.append(value)
 
         // Detect and handle gesture
-        handleGestureIfNeeded()
+        processGesture()
     }
 
     /// Gesture detection and handling
-    private func handleGestureIfNeeded() {
+    private func processGesture() {
         guard !state.handleFinished else {
             return
         }
