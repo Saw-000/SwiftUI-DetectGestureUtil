@@ -35,19 +35,19 @@ struct ContentView: View {
                     switch detection {
                     case .tap:
                         detectedGestureText = "Tap"
-                        return true
+                        return .finished
 
                     case .longTap:
                         detectedGestureText = "Long Tap"
-                        return true
+                        return .finished
 
                     case .drag:
                         if state.gestureValues.last?.timing == .ended {
                             detectedGestureText = "Drag End"
-                            return true
+                            return .finished
                         } else {
                             detectedGestureText = "Drag location: \(state.gestureValues.last?.dragGestureValue.location)"
-                            return false
+                            return .yet
                         }
                     }
                 }
@@ -78,19 +78,19 @@ struct ContentView: View {
                     case .rightSlide:
                         if state.gestureValues.last?.timing == .ended {
                             detectedGestureText = "Right Slide End"
-                            return true
+                            return .finished
                         } else {
                             detectedGestureText = "Right Slide location: \(state.gestureValues.last?.dragGestureValue.location)"
-                            return false
+                            return .yet
                         }
 
                     case .topSwipe:
                         detectedGestureText = "Top Swipe"
-                        return true
+                        return .finished
 
                     case .tripleTap:
                         detectedGestureText = "Triple Tap"
-                        return true
+                        return .finished
                     }
                 }
             )
@@ -130,10 +130,10 @@ struct ContentView: View {
                         case .circle:
                             if state.gestureValues.last?.timing == .ended {
                                 detectedGestureText = "Circle End"
-                                return true
+                                return .finished
                             } else {
                                 detectedGestureText = "Circle location: \(state.gestureValues.last?.dragGestureValue.location)"
-                                return false
+                                return .yet
                             }
 
                         case .star_swipe:
@@ -144,7 +144,7 @@ struct ContentView: View {
                                 var lastTapPoints = state.tapSplittedGestureValues.last,
                                 lastTapPoints.count >= 2
                             else {
-                                return false
+                                return .yet
                             }
 
                             lastTapPoints = lastTapPoints.filter { $0.timing != .heartbeat }
@@ -156,10 +156,10 @@ struct ContentView: View {
                                     || state.detected(.swipe(direction: .down), gestureValues: lastTapPoints)
                             {
                                 detectedGestureText = "Star Swiped!"
-                                return true
+                                return .finished
                             }
 
-                            return false
+                            return .yet
                         }
                     },
                     gestureEnded: { _, _ in
