@@ -5,6 +5,12 @@ import MyModuleCore
 public struct DetectGestureState<GestureDetection: Equatable> {
     /// History of gesture information
     public var gestureValues: [DetectGestureStateValue] = []
+    
+    /// Detected gesture
+    public var detection: GestureDetection? = nil
+    
+    /// Whether handling after gesture detection is finished
+    public var handleFinished: Bool = false
 
     /// History of gesture information separated by tap
     public var tapSplittedGestureValues: [[DetectGestureStateValue]] {
@@ -28,16 +34,10 @@ public struct DetectGestureState<GestureDetection: Equatable> {
         return result
     }
 
-    /// Detected gesture
-    public var detection: GestureDetection? = nil
-
     /// Whether gesture has already been detected
     public var gestureDetected: Bool {
         detection != nil
     }
-
-    /// Whether handling after gesture detection is finished
-    public var handleFinished: Bool = false
 
     public init() {}
 
