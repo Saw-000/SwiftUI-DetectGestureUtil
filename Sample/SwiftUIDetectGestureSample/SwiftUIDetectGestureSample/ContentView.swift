@@ -42,11 +42,11 @@ struct ContentView: View {
                         return .finished
 
                     case .drag:
-                        if state.gestureValues.last?.timing == .ended {
+                        if state.lastGestureValue?.timing == .ended {
                             detectedGestureText = "Drag End"
                             return .finished
                         } else {
-                            detectedGestureText = "Drag location: \(state.gestureValues.last?.dragGestureValue.location)"
+                            detectedGestureText = "Drag location: \(state.lastGestureValue?.dragGestureValue.location)"
                             return .yet
                         }
                     }
@@ -69,18 +69,18 @@ struct ContentView: View {
                         return .topSwipe
                     } else if state.detected(.sequentialTap(count: 3, maximumTapIntervalMilliseconds: 250)) {
                         return .tripleTap
-                    } else {
-                        return nil
                     }
+
+                    return nil
                 },
                 handleGesture: { detection, state in
                     switch detection {
                     case .rightSlide:
-                        if state.gestureValues.last?.timing == .ended {
+                        if state.lastGestureValue?.timing == .ended {
                             detectedGestureText = "Right Slide End"
                             return .finished
                         } else {
-                            detectedGestureText = "Right Slide location: \(state.gestureValues.last?.dragGestureValue.location)"
+                            detectedGestureText = "Right Slide location: \(state.lastGestureValue?.dragGestureValue.location)"
                             return .yet
                         }
 
@@ -111,7 +111,7 @@ struct ContentView: View {
 
                         for values in state.tapSplittedGestureValues {
                             let points = values
-                                .filter { $0.timing != .heartbeat } // Get coordinates only when moved.
+                                .withRawDragGesture() // Get coordinates only when moved.
                                 .map { $0.dragGestureValue.location }
 
                             if detectStar(points: points) {
@@ -128,11 +128,11 @@ struct ContentView: View {
 
                         switch detection {
                         case .circle:
-                            if state.gestureValues.last?.timing == .ended {
+                            if state.lastGestureValue?.timing == .ended {
                                 detectedGestureText = "Circle End"
                                 return .finished
                             } else {
-                                detectedGestureText = "Circle location: \(state.gestureValues.last?.dragGestureValue.location)"
+                                detectedGestureText = "Circle location: \(state.lastGestureValue?.dragGestureValue.location)"
                                 return .yet
                             }
 
@@ -141,19 +141,17 @@ struct ContentView: View {
 
                             // End when swiped
                             guard
-                                var lastTapPoints = state.tapSplittedGestureValues.last,
-                                lastTapPoints.count >= 2
+                                let lastTapValues = state.lastTapGestureValues?.withRawDragGesture(),
+                                lastTapValues.count >= 2
                             else {
                                 return .yet
                             }
 
-                            lastTapPoints = lastTapPoints.filter { $0.timing != .heartbeat }
-
                             if
-                                state.detected(.swipe(direction: .up), gestureValues: lastTapPoints)
-                                    || state.detected(.swipe(direction: .left), gestureValues: lastTapPoints)
-                                    || state.detected(.swipe(direction: .right), gestureValues: lastTapPoints)
-                                    || state.detected(.swipe(direction: .down), gestureValues: lastTapPoints)
+                                state.detected(.swipe(direction: .up), gestureValues: lastTapValues)
+                                    || state.detected(.swipe(direction: .left), gestureValues: lastTapValues)
+                                    || state.detected(.swipe(direction: .right), gestureValues: lastTapValues)
+                                    || state.detected(.swipe(direction: .down), gestureValues: lastTapValues)
                             {
                                 detectedGestureText = "Star Swiped!"
                                 return .finished

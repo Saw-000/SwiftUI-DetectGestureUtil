@@ -12,33 +12,6 @@ public struct DetectGestureState<GestureDetection: Equatable> {
     /// Whether handling after gesture detection is finished
     public var handleFinished: Bool = false
 
-    /// History of gesture information separated by tap
-    public var tapSplittedGestureValues: [[DetectGestureStateValue]] {
-        var result: [[DetectGestureStateValue]] = []
-        var buffer: [DetectGestureStateValue] = []
-
-        // Separate at each .ended
-        for value in gestureValues {
-            buffer.append(value)
-            if value.timing == .ended {
-                result.append(buffer)
-                buffer = []
-            }
-        }
-
-        // Add the remaining buffer if the end is not .ended
-        if !buffer.isEmpty {
-            result.append(buffer)
-        }
-
-        return result
-    }
-
-    /// Whether gesture has already been detected
-    public var gestureDetected: Bool {
-        detection != nil
-    }
-
     public init() {}
 
     /// Whether the specified default gesture has already been detected
@@ -182,4 +155,53 @@ public struct DetectGestureStateValue {
 private struct Const {
     /// Minimum velocity for swipe gesture detection
     static let swipeMinimumVelocity: CGFloat = 300
+}
+
+public extension DetectGestureState {
+    /// History of gesture information separated by tap
+    var tapSplittedGestureValues: [[DetectGestureStateValue]] {
+        var result: [[DetectGestureStateValue]] = []
+        var buffer: [DetectGestureStateValue] = []
+
+        // Separate at each .ended
+        for value in gestureValues {
+            buffer.append(value)
+            if value.timing == .ended {
+                result.append(buffer)
+                buffer = []
+            }
+        }
+
+        // Add the remaining buffer if the end is not .ended
+        if !buffer.isEmpty {
+            result.append(buffer)
+        }
+
+        return result
+    }
+    
+    /// GestureValues with last (current in tapping) tap.
+    var lastTapGestureValues: [DetectGestureStateValue]? {
+        tapSplittedGestureValues.last
+    }
+
+    /// Whether gesture has already been detected
+    var gestureDetected: Bool {
+        detection != nil
+    }
+    
+    /// Last Detected Gestrue Value
+    var lastGestureValue: DetectGestureStateValue? {
+        gestureValues.last
+    }
+}
+
+public extension [DetectGestureStateValue] {
+    /// Filtered with Original DragGestureValue timing.
+    func withRawDragGesture() -> [DetectGestureStateValue] {
+        let rawDragTimings: [DetectGestureStateValue.Timing] = [.changed, .ended]
+        return self.filter { value in
+            rawDragTimings.contains(value.timing)
+        }
+    }
 }
