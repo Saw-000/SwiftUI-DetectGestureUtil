@@ -76,7 +76,7 @@ struct ContentView: View {
                 } else {
                     // Custom: Detect circle gesture without using default gestures
                     let points = state.gestureValues
-                        .filter { $0.timing != .heartbeat }
+                        .withRawDragGesture()
                         .map { $0.dragGestureValue.location }
 
                     if detectCircle(points: points) {
@@ -101,7 +101,7 @@ struct ContentView: View {
 
                 case .doubleTapDrag:
                     if state.detected(.drag(minimumDistance: 30)) {
-                        if state.gestureValues.last?.timing == .ended {
+                        if state.lastGestureValue?.timing == .ended {
                             // Tap ended
                             print("Double Tap + Drag End")
                             return .finished // .finished means processing complete.
@@ -113,7 +113,7 @@ struct ContentView: View {
                     }
 
                 case .circle:
-                    if state.gestureValues.last?.timing == .ended {
+                    if state.lastGestureValue?.timing == .ended {
                         print("Circle Detected")
                         return .finished // .finished means processing complete.
                     } else {
