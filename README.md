@@ -143,6 +143,26 @@ private func detectCircle(points: [CGPoint]) -> Bool {
 ### Default Gesture Detection
 Tap, double tap, swipe, etc.
 
+### DetectGestureState
+You can access it in each handler of `View.detectGesture()`.
+
+- `gestureValues: [DetectGestureStateValue]`: History of gesture information
+- `detected(_:gestureValues:) -> Bool`: Whether the specified default gesture has already been detected
+- `tapSplittedGestureValues: [[DetectGestureStateValue]]`: History of gesture information separated by tap
+- `lastTapGestureValues: [DetectGestureStateValue]?`: GestureValues with last (or current in tapping) tap
+- `lastGestureValue: DetectGestureStateValue?`: Last Detected Gestrue Value
+- etc...
+
+### DetectGestureStateValue
+Value containing gesture state information.
+
+- `dragGestureValue: DragGesture.Value`: Drag gesture value from SwiftUI
+- `geometryProxy: GeometryProxy`: Geometry proxy for view bounds
+- `timing: Timing`: Timing of this state update
+- `time: Date`: Timestamp of this state (using custom Date because DragGesture.Value.time has bugs)
+- `isInView() -> Bool`: Check if gesture location is within view bounds
+- etc...
+
 See this class: [DefaultDetectGesture](Sources/Feature/DetectGesture/DefaultDetectGesture.swift#L5)
 
 ## Caution

@@ -5,10 +5,10 @@ import MyModuleCore
 public struct DetectGestureState<GestureDetection: Equatable> {
     /// History of gesture information
     public var gestureValues: [DetectGestureStateValue] = []
-    
+
     /// Detected gesture
     public var detection: GestureDetection? = nil
-    
+
     /// Whether handling after gesture detection is finished
     public var handleFinished: Bool = false
 
@@ -17,7 +17,7 @@ public struct DetectGestureState<GestureDetection: Equatable> {
     /// Whether the specified default gesture has already been detected
     public func detected(_ defaultGesture: DefaultDetectGesture, gestureValues: [DetectGestureStateValue]? = nil) -> Bool {
         let gestureValues = gestureValues ?? self.gestureValues
-        
+
         switch defaultGesture {
         case .tap:
             return gestureValues.contains(where: {
@@ -83,13 +83,13 @@ public struct DetectGestureState<GestureDetection: Equatable> {
             guard count > 0 else {
                 return false
             }
-            
+
             let tapEndValueList = gestureValues.filter { $0.timing == .ended && $0.isInView() }
-            
+
             guard tapEndValueList.count >= count else {
                 return false
             }
-            
+
             var sequentialTapCount = 1
             var previousTapEndValue: DetectGestureStateValue? = nil
 
@@ -179,8 +179,8 @@ public extension DetectGestureState {
 
         return result
     }
-    
-    /// GestureValues with last (current in tapping) tap.
+
+    /// GestureValues with last (or current in tapping) tap.
     var lastTapGestureValues: [DetectGestureStateValue]? {
         tapSplittedGestureValues.last
     }
@@ -189,7 +189,7 @@ public extension DetectGestureState {
     var gestureDetected: Bool {
         detection != nil
     }
-    
+
     /// Last Detected Gestrue Value
     var lastGestureValue: DetectGestureStateValue? {
         gestureValues.last
