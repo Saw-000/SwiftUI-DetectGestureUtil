@@ -143,6 +143,8 @@ private func detectCircle(points: [CGPoint]) -> Bool {
 ### Default Gesture Detection
 Tap, double tap, swipe, etc.
 
+See this class: [DefaultDetectGesture](Sources/Feature/DetectGesture/DefaultDetectGesture.swift#L5)
+
 ### DetectGestureState
 You can access it in each handler of `View.detectGesture()`.
 
@@ -162,8 +164,6 @@ Value containing gesture state information. (like DragGesture.Value)
 - `time: Date`: Timestamp of this state (using custom Date because DragGesture.Value.time has bugs)
 - `isInView() -> Bool`: Check if gesture location is within view bounds
 - etc...
-
-See this class: [DefaultDetectGesture](Sources/Feature/DetectGesture/DefaultDetectGesture.swift#L5)
 
 ## Caution
 - ※ Multi-Fingered Gesture has not supported yet. (No plans)
