@@ -70,7 +70,7 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
     private func processGesture(
         dragGestureValue: DragGesture.Value,
         geo: GeometryProxy?,
-        timing: DetectGestureStateValue.Timing
+        timing: DetectGestureValue.Timing
     ) {
         guard let geo else {
             return
@@ -81,7 +81,7 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
         }
 
         // Record new value
-        let value = DetectGestureStateValue(
+        let value = DetectGestureValue(
             dragGestureValue: dragGestureValue,
             geometryProxy: geo,
             timing: timing,

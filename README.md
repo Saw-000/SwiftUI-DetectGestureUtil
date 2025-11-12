@@ -146,14 +146,14 @@ Tap, double tap, swipe, etc.
 ### DetectGestureState
 You can access it in each handler of `View.detectGesture()`.
 
-- `gestureValues: [DetectGestureStateValue]`: History of gesture information
+- `gestureValues: [DetectGestureValue]`: History of gesture information
 - `detected(_:gestureValues:) -> Bool`: Whether the specified default gesture has already been detected
-- `tapSplittedGestureValues: [[DetectGestureStateValue]]`: History of gesture information separated by tap
-- `lastTapGestureValues: [DetectGestureStateValue]?`: GestureValues with last (or current in tapping) tap
-- `lastGestureValue: DetectGestureStateValue?`: Last Detected Gestrue Value
+- `tapSplittedGestureValues: [[DetectGestureValue]]`: History of gesture information separated by tap
+- `lastTapGestureValues: [DetectGestureValue]?`: GestureValues with last (or current in tapping) tap
+- `lastGestureValue: DetectGestureValue?`: Last Detected Gestrue Value
 - etc...
 
-### DetectGestureStateValue
+### DetectGestureValue
 Value containing gesture state information. (like DragGesture.Value)
 
 - `dragGestureValue: DragGesture.Value`: Drag gesture value from SwiftUI

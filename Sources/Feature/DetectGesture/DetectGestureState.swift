@@ -4,7 +4,7 @@ import MyModuleCore
 /// State of DetectGesture
 public struct DetectGestureState<GestureDetection: Equatable> {
     /// History of gesture information
-    public var gestureValues: [DetectGestureStateValue] = []
+    public var gestureValues: [DetectGestureValue] = []
 
     /// Detected gesture
     public var detection: GestureDetection? = nil
@@ -15,7 +15,7 @@ public struct DetectGestureState<GestureDetection: Equatable> {
     public init() {}
 
     /// Whether the specified default gesture has already been detected
-    public func detected(_ defaultGesture: DefaultDetectGesture, gestureValues: [DetectGestureStateValue]? = nil) -> Bool {
+    public func detected(_ defaultGesture: DefaultDetectGesture, gestureValues: [DetectGestureValue]? = nil) -> Bool {
         let gestureValues = gestureValues ?? self.gestureValues
 
         switch defaultGesture {
@@ -91,7 +91,7 @@ public struct DetectGestureState<GestureDetection: Equatable> {
             }
 
             var sequentialTapCount = 1
-            var previousTapEndValue: DetectGestureStateValue? = nil
+            var previousTapEndValue: DetectGestureValue? = nil
 
             // Count sequential tap count
             for tapEndValue in tapEndValueList {
@@ -124,7 +124,7 @@ public struct DetectGestureState<GestureDetection: Equatable> {
 }
 
 /// Value containing gesture state information (like DragGesture.Value)
-public struct DetectGestureStateValue {
+public struct DetectGestureValue {
     /// Timing of gesture state update
     public enum Timing {
         /// Gesture changed
@@ -159,9 +159,9 @@ private struct Const {
 
 public extension DetectGestureState {
     /// History of gesture information separated by tap
-    var tapSplittedGestureValues: [[DetectGestureStateValue]] {
-        var result: [[DetectGestureStateValue]] = []
-        var buffer: [DetectGestureStateValue] = []
+    var tapSplittedGestureValues: [[DetectGestureValue]] {
+        var result: [[DetectGestureValue]] = []
+        var buffer: [DetectGestureValue] = []
 
         // Separate at each .ended
         for value in gestureValues {
@@ -181,7 +181,7 @@ public extension DetectGestureState {
     }
 
     /// GestureValues with last (or current in tapping) tap.
-    var lastTapGestureValues: [DetectGestureStateValue]? {
+    var lastTapGestureValues: [DetectGestureValue]? {
         tapSplittedGestureValues.last
     }
 
@@ -191,15 +191,15 @@ public extension DetectGestureState {
     }
 
     /// Last Detected Gestrue Value
-    var lastGestureValue: DetectGestureStateValue? {
+    var lastGestureValue: DetectGestureValue? {
         gestureValues.last
     }
 }
 
-public extension [DetectGestureStateValue] {
+public extension [DetectGestureValue] {
     /// Filtered with Original DragGestureValue timing.
-    func withRawDragGesture() -> [DetectGestureStateValue] {
-        let rawDragTimings: [DetectGestureStateValue.Timing] = [.changed, .ended]
+    func withRawDragGesture() -> [DetectGestureValue] {
+        let rawDragTimings: [DetectGestureValue.Timing] = [.changed, .ended]
         return self.filter { value in
             rawDragTimings.contains(value.timing)
         }
