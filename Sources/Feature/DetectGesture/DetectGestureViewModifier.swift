@@ -8,7 +8,7 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
     @State private var geometry: GeometryProxy? = nil
 
     /// Coordinate space for gesture tracking
-    private let coordinateSpace: CoordinateSpace
+    private let coordinateSpace: CoordinateSpace = .local
 
     /// Closure to detect gesture from state
     private let detectGesture: (DetectGestureState<GestureDetection>) -> GestureDetection?
@@ -23,12 +23,10 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
     private let heartbeatTimer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
 
     init(
-        coordinateSpace: CoordinateSpace = .local,
         detectGesture: @escaping (DetectGestureState<GestureDetection>) -> GestureDetection?,
         handleGesture: @escaping (_ detection: GestureDetection, DetectGestureState<GestureDetection>) -> HandleGestureReturn,
         gestureEnded: ((_ detection: GestureDetection, DetectGestureState<GestureDetection>) -> Void)? = nil
     ) {
-        self.coordinateSpace = coordinateSpace
         self.detectGesture = detectGesture
         self.handleGesture = handleGesture
         self.gestureEnded = gestureEnded
@@ -168,17 +166,15 @@ extension View {
     ///
     /// - Parameters:
     ///   - gestureType: The type of gesture to detect
-    ///   - coordinateSpace: The coordinate space for gesture tracking
     ///   - detectGesture: Closure that returns the detected gesture (generic GestureDetection type). Like Gesture.changed(), it is called when the gesture state is updated and is passed a DetectGestureState containing gesture information. If it returns a GestureDetection type, it indicates the gesture was detected and will not be called again; from then on, handleGesture will be called. It continues to be called as long as it returns nil. It can also handle across multiple taps.
     ///   - handleGesture: Closure that processes the detected gesture. This is called after the detectGesture phase completes. It receives the GestureDetection type returned by detectGesture. It returns a HandleGestureReturn enum to indicate whether handling is finished. If it returns .finished, it will not be called again, and all gesture processing is completely finished and reset. As long as it returns .yet, it continues to be called when the gesture state is updated (timing is the same as Gesture.changed()). It can also handle across multiple taps.
     ///   - gestureEnded: Optional closure called immediately after handleGesture returns .finished, indicating gesture handling has completed. Useful for cleanup or state reset operations.
     public func detectGesture<GestureDetection: Equatable>(
         _ gestureType: GestureDetection.Type,
-        coordinateSpace: CoordinateSpace = .local,
         detectGesture: @escaping (DetectGestureState<GestureDetection>) -> GestureDetection?,
         handleGesture: @escaping (_ detection: GestureDetection, DetectGestureState<GestureDetection>) -> HandleGestureReturn,
         gestureEnded: ((_ detection: GestureDetection, DetectGestureState<GestureDetection>) -> Void)? = nil
     ) -> some View {
-        self.modifier(DetectGestureViewModifier<GestureDetection>(coordinateSpace: coordinateSpace, detectGesture: detectGesture, handleGesture: handleGesture, gestureEnded: gestureEnded))
+        self.modifier(DetectGestureViewModifier<GestureDetection>(detectGesture: detectGesture, handleGesture: handleGesture, gestureEnded: gestureEnded))
     }
 }
