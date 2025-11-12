@@ -154,7 +154,7 @@ You can access it in each handler of `View.detectGesture()`.
 - etc...
 
 ### DetectGestureStateValue
-Value containing gesture state information.
+Value containing gesture state information. (like DragGesture.Value)
 
 - `dragGestureValue: DragGesture.Value`: Drag gesture value from SwiftUI
 - `geometryProxy: GeometryProxy`: Geometry proxy for view bounds
