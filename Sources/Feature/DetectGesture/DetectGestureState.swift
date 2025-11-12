@@ -123,7 +123,7 @@ public struct DetectGestureState<GestureDetection: Equatable> {
     }
 }
 
-/// Value containing gesture state information
+/// Value containing gesture state information (like DragGesture.Value)
 public struct DetectGestureStateValue {
     /// Timing of gesture state update
     public enum Timing {
