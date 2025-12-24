@@ -117,13 +117,7 @@ struct ContentView: View {
                     }
 
                 case .circle:
-                    if state.lastGestureValue?.timing == .ended {
-                        print("Circle Detected")
-                        return .finished // .finished means processing complete.
-                    } else {
-                        print("Drawing Circle...")
-                        return .yet // .yet means processing incomplete. Continue processing as long as tap continues.
-                    }
+                    return .finished // .finished means processing complete.
                 }
             },
             gestureEnded: { detection, state in
