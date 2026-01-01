@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(swift build:*)"
     ],
     "deny": [],
     "ask": []

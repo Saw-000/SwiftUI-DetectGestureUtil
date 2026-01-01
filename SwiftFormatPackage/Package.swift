@@ -4,17 +4,17 @@
 import PackageDescription
 
 let package = Package(
-	name: "SwiftFormatPackage",
-	products: [
-		.library(name: "SwiftFormatPackage", targets: ["SwiftFormatPackage"])
-	],
-	dependencies: [
-		.package(url: "https://github.com/nicklockwood/SwiftFormat", .upToNextMajor(from: "0.58.7"))
-	],
-	targets: [
-		.target(
-			name: "SwiftFormatPackage",
-			dependencies: []
-		)
-	]
+    name: "SwiftFormatPackage",
+    products: [
+        .library(name: "SwiftFormatPackage", targets: ["SwiftFormatPackage"]),
+    ],
+    dependencies: [
+        .package(url: "https://github.com/nicklockwood/SwiftFormat", .upToNextMajor(from: "0.58.7")),
+    ],
+    targets: [
+        .target(
+            name: "SwiftFormatPackage",
+            dependencies: []
+        ),
+    ]
 )

@@ -4,11 +4,11 @@ import SwiftUI
 struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
     /// Gesture state binding
     @State private var state = DetectGestureState<GestureDetection>()
-    
+
     @State private var geometry: GeometryProxy? = nil
 
     /// Coordinate space for gesture tracking
-    private let coordinateSpace: CoordinateSpace = .local
+    private let coordinateSpace: CoordinateSpaceProtocol = .local
 
     /// Closure to detect gesture from state
     private let detectGesture: (DetectGestureState<GestureDetection>) -> GestureDetection?
@@ -35,7 +35,7 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
     func body(content: Content) -> some View {
         content
             .background(
-                // GeometryReaderを背景に配置
+                // Place GeometryReader in background
                 GeometryReader { geo in
                     Color.clear
                         .onAppear {
@@ -47,12 +47,12 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
                 }
             )
             .gesture(
-                DragGesture(minimumDistance: 0, coordinateSpace: coordinateSpace)
-                    .onChanged { value in
-                        processGesture(dragGestureValue: value, geo: geometry, timing: .changed)
+                SpatialEventGesture(coordinateSpace: coordinateSpace)
+                    .onChanged { events in
+                        processGesture(spatialEventCollection: events, geo: geometry, timing: .changed)
                     }
-                    .onEnded { value in
-                        processGesture(dragGestureValue: value, geo: geometry, timing: .ended)
+                    .onEnded { events in
+                        processGesture(spatialEventCollection: events, geo: geometry, timing: .ended)
 
                         // If gesture detection and subsequent handling are complete, reset the state.
                         // In other words, gesture detection and handling can span multiple taps.
@@ -68,21 +68,21 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
 
     /// Update state and perform gesture detection and handling.
     private func processGesture(
-        dragGestureValue: DragGesture.Value,
+        spatialEventCollection: SpatialEventCollection,
         geo: GeometryProxy?,
         timing: DetectGestureValue.Timing
     ) {
         guard let geo else {
             return
         }
-        
+
         guard !state.handleFinished else {
             return
         }
 
         // Record new value
         let value = DetectGestureValue(
-            dragGestureValue: dragGestureValue,
+            spatialEventCollection: spatialEventCollection,
             geometryProxy: geo,
             timing: timing,
             time: Date()
@@ -111,13 +111,16 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
         }
 
         // Add the previous gesture information as is.
-        guard var lastValue = state.gestureValues.last else {
+        guard let lastValue = state.gestureValues.last else {
             return
         }
 
-        lastValue.time = Date()
-        lastValue.timing = .heartbeat
-        let value = lastValue
+        let value = DetectGestureValue(
+            spatialEventCollection: lastValue.spatialEventCollection,
+            geometryProxy: lastValue.geometryProxy,
+            timing: .heartbeat,
+            time: Date()
+        )
 
         state.gestureValues.append(value)
 
@@ -130,7 +133,7 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
         guard !state.handleFinished else {
             return
         }
-        
+
         // Was the specified gesture detected?
         let detection: GestureDetection?
         if let existingDetection = state.detection {
@@ -145,7 +148,8 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
 
         // If gesture was detected, perform the assigned processing.
         if state.gestureDetected, !state.handleFinished, let detection {
-            state.handleFinished = handleGesture(detection, state) == .finished
+            let handleResult = handleGesture(detection, state)
+            state.handleFinished = handleResult == .finished
 
             // Call gestureEnded callback when handling is complete
             if state.handleFinished {
@@ -159,7 +163,7 @@ public enum HandleGestureReturn {
     case yet, finished
 }
 
-extension View {
+public extension View {
     /// Set multiple custom gestures simultaneously and detect only one of them.
     ///
     /// - Note: GestureDetection is the gesture you want to detect. It's better to use an enum.
@@ -169,12 +173,12 @@ extension View {
     ///   - detectGesture: Closure that returns the detected gesture (generic GestureDetection type). Like Gesture.changed(), it is called when the gesture state is updated and is passed a DetectGestureState containing gesture information. If it returns a GestureDetection type, it indicates the gesture was detected and will not be called again; from then on, handleGesture will be called. It continues to be called as long as it returns nil. It can also handle across multiple taps.
     ///   - handleGesture: Closure that processes the detected gesture. This is called after the detectGesture phase completes. It receives the GestureDetection type returned by detectGesture. It returns a HandleGestureReturn enum to indicate whether handling is finished. If it returns .finished, it will not be called again, and all gesture processing is completely finished and reset. As long as it returns .yet, it continues to be called when the gesture state is updated (timing is the same as Gesture.changed()). It can also handle across multiple taps.
     ///   - gestureEnded: Optional closure called immediately after handleGesture returns .finished, indicating gesture handling has completed. Useful for cleanup or state reset operations.
-    public func detectGesture<GestureDetection: Equatable>(
-        _ gestureType: GestureDetection.Type,
+    func detectGesture<GestureDetection: Equatable>(
+        _: GestureDetection.Type,
         detectGesture: @escaping (DetectGestureState<GestureDetection>) -> GestureDetection?,
         handleGesture: @escaping (_ detection: GestureDetection, DetectGestureState<GestureDetection>) -> HandleGestureReturn,
         gestureEnded: ((_ detection: GestureDetection, DetectGestureState<GestureDetection>) -> Void)? = nil
     ) -> some View {
-        self.modifier(DetectGestureViewModifier<GestureDetection>(detectGesture: detectGesture, handleGesture: handleGesture, gestureEnded: gestureEnded))
+        modifier(DetectGestureViewModifier<GestureDetection>(detectGesture: detectGesture, handleGesture: handleGesture, gestureEnded: gestureEnded))
     }
 }
