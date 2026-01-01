@@ -8,7 +8,9 @@ A Swift Package that allows you to detect only one of multiple custom gestures o
 
 It uses [SpatialEventGesture](https://developer.apple.com/documentation/swiftui/spatialeventgesture) internally and supports multi-touch (multiple fingers).
 
-**v1.4.0+ Requirements: iOS 18.0+**
+**Requirements:**  
+**v1.4.0+ (with Multi-Fingered Gesture support): iOS 18.0+**  
+**v1.3.0- (only Single-Fingered Gesture support): iOS 14.0+**  
 
 <img width="400" alt="Simulator Screenshot - iPad (A16) - 2025-11-03 at 05 22 09" src="https://github.com/user-attachments/assets/1ee868bc-91ad-48bd-9a0a-c507ba95c56a" />
 
