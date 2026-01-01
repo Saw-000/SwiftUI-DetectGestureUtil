@@ -21,7 +21,7 @@ struct ContentView: View {
             .detectGesture(
                 MyGestureDetection1.self,
                 detectGesture: { state in
-                    if state.detected(.tap) {
+                    if state.detected(.tap()) {
                         return .tap
                     } else if state.detected(.longTap(minimumMilliSeconds: 1000)) {
                         return .longTap
@@ -46,7 +46,7 @@ struct ContentView: View {
                             detectedGestureText = "Drag End"
                             return .finished
                         } else {
-                            detectedGestureText = "Drag location: \(state.lastGestureValue?.dragGestureValue.location)"
+                            detectedGestureText = "Drag location: \(state.lastGestureValue?.locations)"
                             return .yet
                         }
                     }
@@ -80,7 +80,7 @@ struct ContentView: View {
                             detectedGestureText = "Right Slide End"
                             return .finished
                         } else {
-                            detectedGestureText = "Right Slide location: \(state.lastGestureValue?.dragGestureValue.location)"
+                            detectedGestureText = "Right Slide location: \(state.lastGestureValue?.locations)"
                             return .yet
                         }
 
@@ -109,15 +109,21 @@ struct ContentView: View {
                     detectGesture: { state in
                         detectGestureState3 = state
 
-                        for values in state.tapSplittedGestureValues {
-                            let points = values
-                                .withRawDragGesture() // Get coordinates only when moved.
-                                .map { $0.dragGestureValue.location }
+                        for tapSequence in state.gestureValuesAsTapSequences {
+                            for singleFingerTouch in tapSequence.touches {
+                                guard !singleFingerTouch.isOverlapped(with: tapSequence.touches) else {
+                                    continue
+                                }
+                                
+                                let points = singleFingerTouch.values
+                                    .withRawNotifiedGesture() // Get coordinates only when moved.
+                                    .map { $0.fingerEvent.location }
 
-                            if detectStar(points: points) {
-                                return .star_swipe
-                            } else if detectCircle(points: points) {
-                                return .circle
+                                if detectStar(points: points) {
+                                    return .star_swipe
+                                } else if detectCircle(points: points) {
+                                    return .circle
+                                }
                             }
                         }
 
@@ -132,7 +138,7 @@ struct ContentView: View {
                                 detectedGestureText = "Circle End"
                                 return .finished
                             } else {
-                                detectedGestureText = "Circle location: \(state.lastGestureValue?.dragGestureValue.location)"
+                                detectedGestureText = "Circle location: \(state.lastGestureValue?.locations)"
                                 return .yet
                             }
 
@@ -141,18 +147,22 @@ struct ContentView: View {
 
                             // End when swiped
                             guard
-                                let lastTapValues = state.lastTapGestureValues?.withRawDragGesture(),
-                                lastTapValues.count >= 2
+                                let lastTapSequence = state.lastTapSequence,
+                                lastTapSequence.touches.count > 0
                             else {
                                 return .yet
                             }
-
-                            if
-                                state.detected(.swipe(direction: .up), gestureValues: lastTapValues)
+                            
+                            let isSwiped = lastTapSequence.anySingleFingerTouchContains { singleFingerTouch, touchSequence in
+                                let lastTapValues = singleFingerTouch.values.map { $0.attachmentInfo }
+                                
+                                return state.detected(.swipe(direction: .up), gestureValues: lastTapValues)
                                     || state.detected(.swipe(direction: .left), gestureValues: lastTapValues)
                                     || state.detected(.swipe(direction: .right), gestureValues: lastTapValues)
                                     || state.detected(.swipe(direction: .down), gestureValues: lastTapValues)
-                            {
+                            }
+                            
+                            if isSwiped {
                                 detectedGestureText = "Star Swiped!"
                                 return .finished
                             }
@@ -167,8 +177,8 @@ struct ContentView: View {
 
                 // Drawing trajectory
                 Path { path in
-                    detectGestureState3?.tapSplittedGestureValues.forEach { gestureValues in
-                        let points = gestureValues.map { $0.dragGestureValue.location }
+                    detectGestureState3?.processPerSingleFingerTouch { singleFingerTouch, touchSequence in
+                        let points = singleFingerTouch.values.map { $0.fingerEvent.location }
                         guard let first = points.first else { return }
                         path.move(to: first)
                         for p in points { path.addLine(to: p) }

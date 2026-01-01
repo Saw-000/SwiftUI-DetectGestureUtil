@@ -7,7 +7,7 @@ import Foundation
 let package = Package(
     name: "SwiftUI-DetectGestureUtil",
     platforms: [
-        .iOS(.v14),
+        .iOS(.v18),
     ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
@@ -43,12 +43,13 @@ let package = Package(
 
 // MARK: - Utility
 
-// 自作モジュール
+/// Custom modules for package organization
 enum MyModule {
     case core
     case featureDetectGesture
     case swiftUIDetectGestureUtil
 
+    /// Folder path for the module
     var folderPath: String {
         return switch self {
         case .core:
@@ -60,6 +61,7 @@ enum MyModule {
         }
     }
 
+    /// Module name
     var name: String {
         return switch self {
         case .swiftUIDetectGestureUtil:
@@ -71,6 +73,7 @@ enum MyModule {
         }
     }
 
+    /// Target dependency
     var dependency: Target.Dependency {
         return .byName(name: name, condition: nil)
     }
