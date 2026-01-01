@@ -119,13 +119,7 @@ struct ContentView: View {
                     }
 
                 case .circle:
-                    if state.lastGestureValue?.timing == .ended {
-                        print("Circle Finished.")
-                        return .finished // .finished means processing complete.
-                    } else {
-                        print("Drawing Circle...")
-                        return .yet // .yet means processing incomplete. Continue processing as long as tap continues.
-                    }
+                    return .finished // .finished means processing complete.
                 }
             },
             gestureEnded: { detection, state in
@@ -183,6 +177,12 @@ For more information about SpatialEventGesture, see [Apple's official documentat
 
 ## Sample
 Run the project in Sample folder.
+
+## For Dev
+### swiftformat
+```
+SwiftFormatPackage/swiftformat .
+```
 
 ## Reference
 None
