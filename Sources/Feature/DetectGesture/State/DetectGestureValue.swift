@@ -5,9 +5,8 @@
 //  Created by IeSo on 2026/01/01.
 //
 
-
-import SwiftUI
 import MyModuleCore
+import SwiftUI
 
 /// Value containing gesture state information (like DragGesture.Value)
 public struct DetectGestureValue {
@@ -43,7 +42,7 @@ public extension DetectGestureValue {
     var locations: [CGPoint] {
         spatialEventCollection.map(\.location)
     }
-    
+
     /// Check if all fingers is within view bounds
     func isAllFingersInView() -> Bool {
         !asSingleFingerValues().contains(where: {
@@ -53,7 +52,7 @@ public extension DetectGestureValue {
 
     /// Convert to DetectGestureSingleFingerValue format
     func asSingleFingerValues() -> [DetectGestureSingleFingerValue] {
-        self.spatialEventCollection.map { event in
+        spatialEventCollection.map { event in
             DetectGestureSingleFingerValue(
                 fingerEvent: event,
                 attachmentInfo: self
@@ -66,18 +65,18 @@ public extension [DetectGestureValue] {
     /// Split into sequences from tap start until all fingers are released
     private func splittedInTouchSequences() -> [[DetectGestureValue]] {
         var buffer = [[DetectGestureValue]]()
-        
+
         var nextStartIndex = 0
-        for i in 0...self.count-1 {
+        for i in 0 ... self.count - 1 {
             let value = self[i]
             if value.timing == .ended {
-                buffer.append(Array(self[nextStartIndex...i]))
+                buffer.append(Array(self[nextStartIndex ... i]))
                 nextStartIndex = i + 1
-            } else if i == self.count-1 {
-                buffer.append(Array(self[nextStartIndex...self.count-1]))
+            } else if i == self.count - 1 {
+                buffer.append(Array(self[nextStartIndex ... self.count - 1]))
             }
         }
-        
+
         return buffer
     }
 
@@ -90,7 +89,7 @@ public extension [DetectGestureValue] {
             .sorted(by: {
                 $0.time < $1.time
             })
-            
+
             return Dictionary(
                 grouping: singleFingers,
                 by: { $0.fingerEvent.id }

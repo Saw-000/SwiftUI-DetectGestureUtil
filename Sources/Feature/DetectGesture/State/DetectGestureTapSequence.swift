@@ -11,7 +11,7 @@ public struct DetectGestureTapSequence {
 public extension DetectGestureTapSequence {
     /// Check if any single finger tap satisfies the condition
     func anySingleFingerTouchContains(_ completion: @escaping (DetectGestureSingleFingerTouch, DetectGestureTapSequence) -> Bool) -> Bool {
-        self.touches.contains(where: { singleFingerValues in
+        touches.contains(where: { singleFingerValues in
             completion(singleFingerValues, self)
         })
     }

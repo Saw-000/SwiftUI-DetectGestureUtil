@@ -1,5 +1,5 @@
-import SwiftUI
 import MyModuleCore
+import SwiftUI
 
 /// State of DetectGesture
 public struct DetectGestureState<GestureDetection: Equatable> {
@@ -7,7 +7,7 @@ public struct DetectGestureState<GestureDetection: Equatable> {
     public var gestureValues: [DetectGestureValue] = []
 
     /// Detected gesture
-    public var detection: GestureDetection? = nil
+    public var detection: GestureDetection?
 
     /// Whether handling after gesture detection is finished
     public var handleFinished: Bool = false
@@ -17,7 +17,7 @@ public struct DetectGestureState<GestureDetection: Equatable> {
     /// Whether the specified default gesture has already been detected
     public func detected(_ wantToDetectGesture: DefaultDetectGesture, gestureValues: [DetectGestureValue]? = nil) -> Bool {
         let gestureValues = gestureValues ?? self.gestureValues
-        
+
         switch wantToDetectGesture {
         case let .tap(allowMultiTap):
             return gestureValues.anySingleFingerTouchContains { singleFingerTouch, touchSequence in
@@ -40,7 +40,7 @@ public struct DetectGestureState<GestureDetection: Equatable> {
                 else {
                     return false
                 }
-                
+
                 if duration * 1000 >= minimumMilliSeconds {
                     return true
                 }
@@ -55,7 +55,7 @@ public struct DetectGestureState<GestureDetection: Equatable> {
                 else {
                     return false
                 }
-                
+
                 return singleFingerTouch.translation.distance >= minimumDistance
             }
 
@@ -66,7 +66,7 @@ public struct DetectGestureState<GestureDetection: Equatable> {
                 else {
                     return false
                 }
-                
+
                 let diff = singleFingerTouch.diff
 
                 return switch direction {
@@ -87,13 +87,13 @@ public struct DetectGestureState<GestureDetection: Equatable> {
                 guard singleFingerTouch.values.last?.fingerEvent.phase == .ended else {
                     return false
                 }
-                
+
                 guard
                     allowMultiTap || !singleFingerTouch.isOverlapped(with: touchSequence.touches)
                 else {
                     return false
                 }
-                
+
                 let velocity = singleFingerTouch.velocity
 
                 return switch direction {
@@ -112,7 +112,7 @@ public struct DetectGestureState<GestureDetection: Equatable> {
             guard count > 0 else {
                 return false
             }
-            
+
             let tapEndValues = gestureValues.asTapSequences()
                 .flatMap { touchSequence in
                     touchSequence.touches.filter { singleFingerTouch in
@@ -123,7 +123,7 @@ public struct DetectGestureState<GestureDetection: Equatable> {
                         else {
                             return false
                         }
-                        
+
                         return true
                     }
                 }
@@ -169,7 +169,7 @@ public struct DetectGestureState<GestureDetection: Equatable> {
 }
 
 /// Constants for gesture detection
-private struct Const {
+private enum Const {
     /// Minimum velocity for swipe gesture detection
     static let swipeMinimumVelocity: CGFloat = 300
 }
@@ -196,7 +196,7 @@ public extension DetectGestureState {
     var lastGestureValue: DetectGestureValue? {
         gestureValues.last
     }
-    
+
     /// Process taps for each individual finger
     func processPerSingleFingerTouch(_ completion: (DetectGestureSingleFingerTouch, DetectGestureTapSequence) -> Void) {
         gestureValues.processPerSingleFingerTouch(completion)

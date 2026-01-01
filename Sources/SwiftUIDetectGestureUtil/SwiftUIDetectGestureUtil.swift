@@ -1,2 +1,2 @@
-@_exported import MyModuleFeatureDetectGesture
 @_exported import MyModuleCore
+@_exported import MyModuleFeatureDetectGesture

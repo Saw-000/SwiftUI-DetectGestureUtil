@@ -1,6 +1,6 @@
 import Foundation
-import SwiftUI
 import MyModuleCore
+import SwiftUI
 
 /// DetectGestureValue formatted to focus on a single finger event
 public struct DetectGestureSingleFingerValue {
@@ -16,8 +16,8 @@ public extension DetectGestureSingleFingerValue {
     /// Check if a location of a finger is within view bounds
     func isInView() -> Bool {
         let location = fingerEvent.location
-        return 0 <= location.x && location.x <= attachmentInfo.geometryProxy.size.width
-            && 0 <= location.y && location.y <= attachmentInfo.geometryProxy.size.height
+        return location.x >= 0 && location.x <= attachmentInfo.geometryProxy.size.width
+            && location.y >= 0 && location.y <= attachmentInfo.geometryProxy.size.height
     }
 
     /// Timestamp of this finger event

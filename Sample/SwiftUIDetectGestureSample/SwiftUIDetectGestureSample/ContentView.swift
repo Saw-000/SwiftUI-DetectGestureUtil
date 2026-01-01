@@ -95,7 +95,6 @@ struct ContentView: View {
                 }
             )
 
-
             ZStack {
                 // Third gesture detection view
                 VStack {
@@ -114,7 +113,7 @@ struct ContentView: View {
                                 guard !singleFingerTouch.isOverlapped(with: tapSequence.touches) else {
                                     continue
                                 }
-                                
+
                                 let points = singleFingerTouch.values
                                     .withRawNotifiedGesture() // Get coordinates only when moved.
                                     .map { $0.fingerEvent.location }
@@ -152,16 +151,16 @@ struct ContentView: View {
                             else {
                                 return .yet
                             }
-                            
-                            let isSwiped = lastTapSequence.anySingleFingerTouchContains { singleFingerTouch, touchSequence in
+
+                            let isSwiped = lastTapSequence.anySingleFingerTouchContains { singleFingerTouch, _ in
                                 let lastTapValues = singleFingerTouch.values.map { $0.attachmentInfo }
-                                
+
                                 return state.detected(.swipe(direction: .up), gestureValues: lastTapValues)
                                     || state.detected(.swipe(direction: .left), gestureValues: lastTapValues)
                                     || state.detected(.swipe(direction: .right), gestureValues: lastTapValues)
                                     || state.detected(.swipe(direction: .down), gestureValues: lastTapValues)
                             }
-                            
+
                             if isSwiped {
                                 detectedGestureText = "Star Swiped!"
                                 return .finished
@@ -177,11 +176,13 @@ struct ContentView: View {
 
                 // Drawing trajectory
                 Path { path in
-                    detectGestureState3?.processPerSingleFingerTouch { singleFingerTouch, touchSequence in
+                    detectGestureState3?.processPerSingleFingerTouch { singleFingerTouch, _ in
                         let points = singleFingerTouch.values.map { $0.fingerEvent.location }
                         guard let first = points.first else { return }
                         path.move(to: first)
-                        for p in points { path.addLine(to: p) }
+                        for p in points {
+                            path.addLine(to: p)
+                        }
                     }
                 }
                 .stroke(.black.opacity(0.5), lineWidth: 3)
@@ -226,6 +227,7 @@ enum MyGestureDetection3 {
 }
 
 // MARK: - Shape detection algorithms
+
 /// Simple circle detection
 private func detectCircle(points: [CGPoint]) -> Bool {
     guard points.count > 100 else { return false }
@@ -237,12 +239,12 @@ private func detectCircle(points: [CGPoint]) -> Bool {
 
     // Calculate variance (variation) of radius (distance from center to each point).
     let center = CGPoint(
-        x: points.map{$0.x}.reduce(0,+)/CGFloat(points.count),
-        y: points.map{$0.y}.reduce(0,+)/CGFloat(points.count)
+        x: points.map { $0.x }.reduce(0,+) / CGFloat(points.count),
+        y: points.map { $0.y }.reduce(0,+) / CGFloat(points.count)
     )
     let radii = points.map { hypot($0.x - center.x, $0.y - center.y) }
-    let mean = radii.reduce(0,+)/CGFloat(radii.count)
-    let variance = radii.map{ pow($0 - mean, 2.0) }.reduce(0,+) / CGFloat(radii.count)
+    let mean = radii.reduce(0,+) / CGFloat(radii.count)
+    let variance = radii.map { pow($0 - mean, 2.0) }.reduce(0,+) / CGFloat(radii.count)
 
     // Calculate number of corners: consider as circle only if there are few sharp angle changes
     let angles = calculateTurningAngles(points: points)
@@ -288,10 +290,10 @@ private func totalLength(_ points: [CGPoint]) -> CGFloat {
 private func calculateTurningAngles(points: [CGPoint]) -> [CGFloat] {
     guard points.count > 2 else { return [] }
     var angles: [CGFloat] = []
-    for i in 1..<points.count-1 {
-        let a = points[i-1]
+    for i in 1 ..< points.count - 1 {
+        let a = points[i - 1]
         let b = points[i]
-        let c = points[i+1]
+        let c = points[i + 1]
         let v1 = CGPoint(x: b.x - a.x, y: b.y - a.y)
         let v2 = CGPoint(x: c.x - b.x, y: c.y - b.y)
         let angle = atan2(v2.y, v2.x) - atan2(v1.y, v1.x)

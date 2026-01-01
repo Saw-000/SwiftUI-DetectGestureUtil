@@ -1,6 +1,6 @@
 import Foundation
-import SwiftUI
 import MyModuleCore
+import SwiftUI
 
 /// Collection of events for a single finger
 public struct DetectGestureSingleFingerTouch {
@@ -26,7 +26,7 @@ public extension DetectGestureSingleFingerTouch {
         else {
             return nil
         }
-        
+
         return TouchPeriod(start: first.time, end: last.time)
     }
 
@@ -35,7 +35,7 @@ public extension DetectGestureSingleFingerTouch {
         guard let period else {
             return nil
         }
-        
+
         return period.end.timeIntervalSince(period.start)
     }
 
@@ -64,7 +64,7 @@ public extension DetectGestureSingleFingerTouch {
         else {
             return .zero
         }
-        
+
         return CGPoint(
             x: lastLocation.x - firstLocation.x,
             y: lastLocation.y - firstLocation.y
@@ -79,7 +79,7 @@ public extension DetectGestureSingleFingerTouch {
         else {
             return .zero
         }
-        
+
         return CGSize(
             width: lastLocation.x - firstLocation.x,
             height: lastLocation.y - firstLocation.y
@@ -94,9 +94,9 @@ public extension DetectGestureSingleFingerTouch {
         else {
             return .zero
         }
-        
+
         let secondLastValue = values[values.count - 2]
-        
+
         let timeInterval = lastValue.time.timeIntervalSince(secondLastValue.time)
         guard timeInterval > 0 else {
             return .zero
@@ -111,7 +111,7 @@ public extension DetectGestureSingleFingerTouch {
             width: distance.width / timeInterval,
             height: distance.height / timeInterval
         )
-        
+
         return velocity
     }
 }
