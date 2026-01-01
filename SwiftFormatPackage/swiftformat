@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# このスクリプト自身があるディレクトリ（= SwiftFormatPackage）
+PKG_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+swift run -c release \
+  --package-path "$PKG_DIR" \
+  swiftformat "$@"

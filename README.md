@@ -165,5 +165,11 @@ Value containing gesture state information. (like DragGesture.Value)
 ## Sample
 Run the project in Sample folder.
 
+## For Dev
+### swiftformat
+```
+SwiftFormatPackage/swiftformat .
+```
+
 ## Reference
 None
