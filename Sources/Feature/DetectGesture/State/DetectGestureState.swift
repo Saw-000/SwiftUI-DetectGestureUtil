@@ -164,6 +164,21 @@ public struct DetectGestureState<GestureDetection: Equatable> {
 
             // Sequential tap count never exceeded specified count
             return false
+
+        case let .pinch(minimumDistance):
+            // Detect pinch gesture using pinchState
+            return pinchState.contains { pinch in
+                guard let first = pinch.values.first else {
+                    return false
+                }
+                let initialDistance = first.distance
+
+                // Check if any point in the pinch exceeds the minimum distance change
+                return pinch.values.contains { value in
+                    let distanceChange = abs(value.distance - initialDistance)
+                    return distanceChange >= minimumDistance
+                }
+            }
         }
     }
 }
@@ -200,5 +215,90 @@ public extension DetectGestureState {
     /// Process taps for each individual finger
     func processPerSingleFingerTouch(_ completion: (DetectGestureSingleFingerTouch, DetectGestureTapSequence) -> Void) {
         gestureValues.processPerSingleFingerTouch(completion)
+    }
+
+    /// ピンチに関する情報
+    var pinchState: [DetectGesturePinch] {
+        var pinches: [DetectGesturePinch] = []
+        var currentPinchValues: [DetectGesturePinchValue] = []
+        var currentEventIDs: Set<SpatialEventCollection.Event.ID>? = nil
+
+        for gestureValue in gestureValues {
+            // Check if there are exactly 2 fingers
+            if gestureValue.fingerCount == 2 {
+                let events = Array(gestureValue.spatialEventCollection)
+                var eventIDs: Set<SpatialEventCollection.Event.ID> {
+                    Set(events.map { $0.id })
+                }
+
+                // Check if this is the same pinch event (same Event.ID pair)
+                if let current = currentEventIDs, current == eventIDs {
+                    // Same pinch event, add to current
+                    let pinchValue = DetectGesturePinchValue(events: events)
+                    currentPinchValues.append(pinchValue)
+                } else {
+                    // Different pinch event or new pinch started
+                    // Save previous pinch if exists (mark as ended)
+                    if !currentPinchValues.isEmpty {
+                        pinches.append(DetectGesturePinch(values: currentPinchValues, isEnded: true))
+                    }
+
+                    // Start new pinch
+                    currentPinchValues = [DetectGesturePinchValue(events: events)]
+                    currentEventIDs = eventIDs
+                }
+            } else {
+                // Not 2 fingers, end current pinch if exists
+                if !currentPinchValues.isEmpty {
+                    pinches.append(DetectGesturePinch(values: currentPinchValues, isEnded: true))
+                    currentPinchValues = []
+                    currentEventIDs = nil
+                }
+            }
+        }
+
+        // Don't forget to add the last pinch if exists
+        // Determine if the last pinch is ended
+        if !currentPinchValues.isEmpty {
+            let isEnded = isPinchEnded(
+                eventIDs: currentEventIDs,
+                lastGestureValue: gestureValues.last
+            )
+            pinches.append(DetectGesturePinch(values: currentPinchValues, isEnded: isEnded))
+        }
+
+        return pinches
+    }
+
+    /// ピンチが終了しているかを判定
+    private func isPinchEnded(
+        eventIDs: Set<SpatialEventCollection.Event.ID>?,
+        lastGestureValue: DetectGestureValue?
+    ) -> Bool {
+        guard let lastGestureValue else {
+            return true
+        }
+
+        // gestureValues.last.timing == .ended なら全部終わり
+        if lastGestureValue.timing == .ended {
+            return true
+        }
+
+        // gestureValues.last の指の個数が2でない
+        if lastGestureValue.fingerCount != 2 {
+            return true
+        }
+
+        // SpatialEventCollection.Event.ID が異なる
+        guard let eventIDs else {
+            return true
+        }
+        let lastEventIDs = Set(lastGestureValue.spatialEventCollection.map { $0.id })
+        if eventIDs != lastEventIDs {
+            return true
+        }
+
+        // まだ継続中
+        return false
     }
 }

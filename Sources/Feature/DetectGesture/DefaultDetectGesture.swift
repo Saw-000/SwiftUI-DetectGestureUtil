@@ -16,6 +16,8 @@ public enum DefaultDetectGesture {
     case swipe(direction: DefaultDetectGestureDirection, allowMultiTap: Bool = false)
     /// Sequential tap gesture with count and maximum interval between taps
     case sequentialTap(count: Int, maximumTapIntervalMilliseconds: TimeInterval)
+    /// Pinch gesture on a specific axis with minimum distance change
+    case pinch(minimumDistance: CGFloat)
 }
 
 /// Direction for gesture detection

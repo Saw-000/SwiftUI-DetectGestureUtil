@@ -13,7 +13,7 @@ struct ContentView: View {
 
             // First gesture detection view
             VStack {
-                Text("tap\n" + "long tap\n" + "drag")
+                Text("tap\n" + "long tap\n" + "pinch")
                     .font(.title2)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -25,8 +25,8 @@ struct ContentView: View {
                         return .tap
                     } else if state.detected(.longTap(minimumMilliSeconds: 1000)) {
                         return .longTap
-                    } else if state.detected(.drag(minimumDistance: 30)) {
-                        return .drag
+                    } else if state.detected(.pinch(minimumDistance: 30)) {
+                        return .pinch
                     } else {
                         return nil
                     }
@@ -41,13 +41,22 @@ struct ContentView: View {
                         detectedGestureText = "Long Tap"
                         return .finished
 
-                    case .drag:
-                        if state.lastGestureValue?.timing == .ended {
-                            detectedGestureText = "Drag End"
-                            return .finished
-                        } else {
-                            detectedGestureText = "Drag location: \(state.lastGestureValue?.locations)"
+                    case .pinch:
+                        // Display center position and distance
+                        if let lastPinch = state.pinchState.last, let lastValue = lastPinch.values.last {
+                            if lastPinch.isEnded {
+                                detectedGestureText = nil
+                                return .finished
+                            }
+
+                            let center = lastValue.center
+                            let distance = lastValue.distance
+                            detectedGestureText = "Pinch center: (\(String(format: "%.1f", center.x)), \(String(format: "%.1f", center.y))) distance: \(String(format: "%.1f", distance))"
+
                             return .yet
+                        } else {
+                            detectedGestureText = "Pinch failed??"
+                            return .finished
                         }
                     }
                 }
@@ -204,8 +213,8 @@ enum MyGestureDetection1 {
     case tap
     /// Long tap gesture
     case longTap
-    /// Drag gesture
-    case drag
+    /// Pinch gesture
+    case pinch
 }
 
 /// Wanted Gesture Detection
