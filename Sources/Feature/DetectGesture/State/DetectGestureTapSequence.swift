@@ -15,6 +15,14 @@ public extension DetectGestureTapSequence {
             completion(singleFingerValues, self)
         })
     }
+
+    /// convert to [DetectGestureValue]
+    var asDetectGestureValues: [DetectGestureValue] {
+        touches.flatMap(\.values)
+            .map(\.attachmentInfo)
+            .distinctBy { $0.id }
+            .sorted { $0.time < $1.time }
+    }
 }
 
 public extension [DetectGestureTapSequence] {
@@ -23,5 +31,10 @@ public extension [DetectGestureTapSequence] {
         self.contains(where: {
             $0.anySingleFingerTouchContains(completion)
         })
+    }
+
+    /// convert to [DetectGestureValue]
+    var asDetectGestureValues: [DetectGestureValue] {
+        self.flatMap { $0.asDetectGestureValues }
     }
 }

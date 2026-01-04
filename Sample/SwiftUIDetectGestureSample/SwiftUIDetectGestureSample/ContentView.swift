@@ -23,7 +23,7 @@ struct ContentView: View {
                 detectGesture: { state in
                     if state.detected(.tap()) {
                         return .tap
-                    } else if state.detected(.longTap(minimumMilliSeconds: 1000)) {
+                    } else if state.detected(.longTap(milliSecondsForDetection: 1000)) {
                         return .longTap
                     } else if state.detected(.pinch(minimumDistance: 30)) {
                         return .pinch
