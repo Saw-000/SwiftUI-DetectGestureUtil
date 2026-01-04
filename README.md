@@ -8,9 +8,9 @@ A Swift Package that allows you to detect only one of multiple custom gestures o
 
 It uses [SpatialEventGesture](https://developer.apple.com/documentation/swiftui/spatialeventgesture) internally and supports multi-touch (multiple fingers).
 
-**Requirements:**  
-**v1.4.0+ (with Multi-Fingered Gesture support): iOS 18.0+**  
-**v1.3.0- (only Single-Fingered Gesture support): iOS 14.0+**  
+**Requirements:**
+**v1.4.0+ (with Multi-Fingered Gesture support): iOS 18.0+**
+**v1.3.0- (only Single-Fingered Gesture support): iOS 14.0+**
 
 <img width="400" alt="Simulator Screenshot - iPad (A16) - 2025-11-03 at 05 22 09" src="https://github.com/user-attachments/assets/1ee868bc-91ad-48bd-9a0a-c507ba95c56a" />
 
@@ -75,17 +75,35 @@ struct ContentView: View {
                 // - Non-nil: Indicates that a gesture was detected and returns the detected gesture. The gesture detection phase is then complete and this closure will no longer be called. From then on, handleGesture will be called.
                 // - nil: Indicates that no gesture was detected. As long as nil is returned, it will be called when the gesture state is updated, similar to Gesture.onChanged() and Gesture.onEnded(). A heartbeat mechanism ensures continuous updates even if fingers remain at the same location.
 
-                if state.detected(.tap) { // Several default gesture detections are provided. See DefaultDetectGesture type.
+                if state.detected(.tap()) { // Several default gesture detections are provided. See DefaultDetectGesture type.
                     // Detect tap gesture
                     return .tap
-                } else if state.detected(.sequentialTap(count: 2, maximumTapIntervalMilliseconds: 250)) && state.detected(.drag) {
+                } else if state.detected(.sequentialTap(count: 2, maximumTapIntervalMilliseconds: 250, checkOnlyLastTap: false)) && state.detected(.drag(minimumDistance: 30)) {
                     // Detect double tap + drag gesture
                     return .doubleTapDrag
                 } else {
-                    // Custom: Detect circle gesture without using default gestures
-                    let points = state.gestureValues
-                        .filterdWithRawDragGesture
-                        .compactMap { $0.spatialEventCollection.gestureValue?.location }
+                    // Custom: Detect circle gesture
+
+                    // Get currently tapping fingers
+                    let lastFingerTaps = state.tappingFingers
+
+                    // Check if there's exactly one tapping finger
+                    guard lastFingerTaps.count == 1 else {
+                        return nil
+                    }
+
+                    // Get the tapping finger
+                    let lastFingerTap = lastFingerTaps.last!
+
+                    // Check if not overlapped with other finger taps
+                    guard !lastFingerTap.isOverlapped(with: state.lastTapSequence.touches) else {
+                        return nil
+                    }
+
+                    // Get Locations
+                    let points = lastFingerTap.values
+                        .withRawNotifiedGesture() // Get coordinates only when moved.
+                        .map { $0.fingerEvent.location }
 
                     if detectCircle(points: points) {
                         return .circle
@@ -104,29 +122,29 @@ struct ContentView: View {
 
                 switch detection {
                 case .tap:
-                    print("Tap detected")
+                    // Do your process.
                     return .finished // .finished means processing complete. Gesture processing is completely finished.
 
                 case .doubleTapDrag:
                     if state.detected(.drag(minimumDistance: 30)) {
                         if state.lastGestureValue?.timing == .ended {
-                            // Tap ended
-                            print("Double Tap + Drag End")
-                            return .finished // .finished means processing complete.
+                            // Drag ended
+                            return .finished
                         } else {
-                            // Tapping
-                            print("Double Tap + Dragging...")
+                            // Dragging
+                            print("Dragging on: \(state.lastGestureValue?.locations.first)")
                             return .yet // .yet means processing incomplete. Continue processing as long as tap continues.
                         }
                     }
 
                 case .circle:
-                    return .finished // .finished means processing complete.
+                    // Do your process.
+                    return .finished
                 }
             },
             gestureEnded: { detection, state in
                 // Optional: Called immediately after handleGesture returns .finished
-                // Useful for cleanup or state reset operations
+                // Useful for cleanup.
                 print("Gesture ended: \(detection)")
             }
         )
@@ -139,7 +157,7 @@ private func detectCircle(points: [CGPoint]) -> Bool {
 ```
 
 ### Default Gesture Detection
-Tap, double tap, swipe, etc.
+Tap, swipe, pinch, etc.
 
 See this class: [DefaultDetectGesture](Sources/Feature/DetectGesture/DefaultDetectGesture.swift#L5)
 

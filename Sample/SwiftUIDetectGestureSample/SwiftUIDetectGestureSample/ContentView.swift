@@ -117,18 +117,18 @@ struct ContentView: View {
                     detectGesture: { state in
                         detectGestureState3 = state
 
-                        // タップ中の指たち
+                        // Get currently tapping fingers
                         let lastFingerTaps = state.tappingFingers
 
-                        // タップ中の指は一つか
+                        // Check if there's exactly one tapping finger
                         guard lastFingerTaps.count == 1 else {
                             return nil
                         }
 
-                        // タップ中の指
+                        // Get the tapping finger
                         let lastFingerTap = lastFingerTaps.last!
 
-                        // 他の指のタップと被ってないか
+                        // Check if not overlapped with other finger taps
                         guard
                             let lastTapSequence = state.lastTapSequence,
                             !lastFingerTap.isOverlapped(with: lastTapSequence.touches)

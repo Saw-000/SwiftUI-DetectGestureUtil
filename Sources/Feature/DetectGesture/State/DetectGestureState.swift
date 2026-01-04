@@ -6,6 +6,7 @@ private enum Const {
     /// Minimum velocity for swipe gesture detection
     static let swipeMinimumVelocity: CGFloat = 300
 
+    /// Default duration threshold for long tap detection in milliseconds
     static let longTapDefaultMilliSecondsForDetection: TimeInterval = 1000
 }
 
@@ -20,6 +21,7 @@ public struct DetectGestureState<GestureDetection: Equatable> {
     /// Whether handling after gesture detection is finished
     public var handleFinished: Bool = false
 
+    /// Initialize gesture state
     public init() {}
 }
 
@@ -41,18 +43,18 @@ public extension DetectGestureState {
         tapSequences.last
     }
 
-    /// Last Detected Gestrue Value
+    /// Last Detected Gesture Value
     var lastGestureValue: DetectGestureValue? {
         gestureValues.last
     }
 
-    /// 現在タップ中の指
+    /// Currently tapping fingers
     var tappingFingers: [DetectGestureSingleFingerTouch] {
         guard
             let tapSequence = lastTapSequence,
             let lastGestureValue = lastGestureValue
         else {
-            return [] // 必ず存在するはずなのでここに入るはずないが一応。
+            return [] // Should always exist, but returning empty array as fallback
         }
 
         let lastFingerTaps = tapSequence.touches.filter {
@@ -396,12 +398,12 @@ public extension DetectGestureState {
         }
     }
 
-    /// gestureValuesのうちピンチに関するジェスチャ情報を抽出する。
+    /// Extract pinch gesture information from gesture values
     var pinchValues: [DetectGesturePinch] {
         pinchValues(from: tapSequences.asDetectGestureValues)
     }
 
-    /// gestureValuesのうちピンチに関するジェスチャ情報を抽出する。
+    /// Extract pinch gesture information from tap sequences
     func pinchValues(from tapSequences: [DetectGestureTapSequence]) -> [DetectGesturePinch] {
         pinchValues(from: tapSequences.asDetectGestureValues)
     }
@@ -459,7 +461,7 @@ public extension DetectGestureState {
         return pinches
     }
 
-    /// ピンチが終了しているかを判定
+    /// Determine if the pinch gesture has ended
     private func isPinchEnded(
         eventIDs: Set<SpatialEventCollection.Event.ID>?,
         lastGestureValue: DetectGestureValue?
@@ -468,17 +470,17 @@ public extension DetectGestureState {
             return true
         }
 
-        // gestureValues.last.timing == .ended なら全部終わり
+        // If gestureValues.last.timing == .ended, all gestures are finished
         if lastGestureValue.timing == .ended {
             return true
         }
 
-        // gestureValues.last の指の個数が2でない
+        // If the number of fingers in gestureValues.last is not 2
         if lastGestureValue.fingerCount != 2 {
             return true
         }
 
-        // SpatialEventCollection.Event.ID が異なる
+        // If SpatialEventCollection.Event.ID is different
         guard let eventIDs else {
             return true
         }
@@ -487,7 +489,7 @@ public extension DetectGestureState {
             return true
         }
 
-        // まだ継続中
+        // Still continuing
         return false
     }
 }
