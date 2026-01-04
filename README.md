@@ -183,15 +183,16 @@ Value containing gesture state information.
 - `locations: [CGPoint]`: Locations of all fingers
 - `isAllFingersInView() -> Bool`: Check if all fingers are within view bounds
 - `asSingleFingerValues() -> [DetectGestureSingleFingerValue]`: Convert to single finger values for individual finger processing
-- etc...
+- etc.
 
-### SpatialEventCollection Extensions
+### DetectGestureSingleFingerTouch Extensions
 
 Convenience properties added to [SpatialEventCollection](https://developer.apple.com/documentation/swiftui/spatialeventcollection) for easier access:
 
 - `translation: CGSize`: Translation from start location
 - `velocity: CGSize`: Velocity of the gesture movement
 - `diff: CGPoint`: Distance moved from the initial tap location
+- etc.
 
 For more information about SpatialEventGesture, see [Apple's official documentation](https://developer.apple.com/documentation/swiftui/spatialeventgesture).
 
