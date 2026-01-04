@@ -19,7 +19,7 @@ public extension DetectGestureTapSequence {
     /// convert to [DetectGestureValue]
     var asDetectGestureValues: [DetectGestureValue] {
         touches.flatMap(\.values)
-            .map(\.attachmentInfo)
+            .map(\.relatedGestureValue)
             .distinctBy { $0.id }
             .sorted { $0.time < $1.time }
     }

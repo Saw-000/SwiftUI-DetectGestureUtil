@@ -26,6 +26,11 @@ public struct DetectGestureState<GestureDetection: Equatable> {
 // MARK: - Common Utility
 
 public extension DetectGestureState {
+    /// Whether gesture has already been detected
+    var gestureDetected: Bool {
+        detection != nil
+    }
+
     /// Gesture values converted to tap sequences
     var tapSequences: [DetectGestureTapSequence] {
         gestureValues.asTapSequences()
@@ -41,9 +46,20 @@ public extension DetectGestureState {
         gestureValues.last
     }
 
-    /// Whether gesture has already been detected
-    var gestureDetected: Bool {
-        detection != nil
+    /// 現在タップ中の指
+    var tappingFingers: [DetectGestureSingleFingerTouch] {
+        guard
+            let tapSequence = lastTapSequence,
+            let lastGestureValue = lastGestureValue
+        else {
+            return [] // 必ず存在するはずなのでここに入るはずないが一応。
+        }
+
+        let lastFingerTaps = tapSequence.touches.filter {
+            $0.values.last?.relatedGestureValue.id == lastGestureValue.id
+        }
+
+        return lastFingerTaps
     }
 
     /// Process taps for each individual finger
@@ -141,7 +157,7 @@ public extension DetectGestureState {
         tapSequences.anySingleFingerTouchContains { singleFingerTouch, tapSequence in
             guard
                 let lastValue = singleFingerTouch.values.last,
-                !checkOnlyLastTap || lastValue.attachmentInfo.id == tapSequence.asDetectGestureValues.last?.id, // Last tap
+                !checkOnlyLastTap || lastValue.relatedGestureValue.id == tapSequence.asDetectGestureValues.last?.id, // Last tap
                 lastValue.fingerEvent.phase == .ended, // Tap ended
                 lastValue.isInView(), // Tap is within view
                 allowMultiTap || !singleFingerTouch.isOverlapped(with: tapSequence.touches) // Not overlapped with other finger taps (optional)
@@ -161,7 +177,7 @@ public extension DetectGestureState {
     ) -> Bool {
         return tapSequences.anySingleFingerTouchContains { singleFingerTouch, tapSequence in
             guard
-                let lastValue = singleFingerTouch.values.last, !checkOnlyLastTap || lastValue.attachmentInfo.id == tapSequence.asDetectGestureValues.last?.id, // last tap
+                let lastValue = singleFingerTouch.values.last, !checkOnlyLastTap || lastValue.relatedGestureValue.id == tapSequence.asDetectGestureValues.last?.id, // last tap
                 let duration = singleFingerTouch.duration,
                 allowMultiTap || !singleFingerTouch.isOverlapped(with: tapSequence.touches) // Not overlapped with other finger taps (optional)
             else {
@@ -186,7 +202,7 @@ public extension DetectGestureState {
         tapSequences.anySingleFingerTouchContains { singleFingerTouch, tapSequence in
             guard
                 allowMultiTap || !singleFingerTouch.isOverlapped(with: tapSequence.touches),
-                let lastValue = singleFingerTouch.values.last, !checkOnlyLastTap || lastValue.attachmentInfo.id == tapSequence.asDetectGestureValues.last?.id // last tap
+                let lastValue = singleFingerTouch.values.last, !checkOnlyLastTap || lastValue.relatedGestureValue.id == tapSequence.asDetectGestureValues.last?.id // last tap
             else {
                 return false
             }
@@ -206,7 +222,7 @@ public extension DetectGestureState {
         tapSequences.anySingleFingerTouchContains { singleFingerTouch, tapSequence in
             guard
                 allowMultiTap || !singleFingerTouch.isOverlapped(with: tapSequence.touches),
-                let lastValue = singleFingerTouch.values.last, !checkOnlyLastTap || lastValue.attachmentInfo.id == tapSequence.asDetectGestureValues.last?.id // last tap
+                let lastValue = singleFingerTouch.values.last, !checkOnlyLastTap || lastValue.relatedGestureValue.id == tapSequence.asDetectGestureValues.last?.id // last tap
             else {
                 return false
             }
@@ -237,7 +253,7 @@ public extension DetectGestureState {
             // Finger is released
             guard
                 singleFingerTouch.values.last?.fingerEvent.phase == .ended,
-                let lastValue = singleFingerTouch.values.last, !checkOnlyLastTap || lastValue.attachmentInfo.id == tapSequence.asDetectGestureValues.last?.id // last tap
+                let lastValue = singleFingerTouch.values.last, !checkOnlyLastTap || lastValue.relatedGestureValue.id == tapSequence.asDetectGestureValues.last?.id // last tap
             else {
                 return false
             }
@@ -302,7 +318,7 @@ public extension DetectGestureState {
         // Count sequential tap count
         for tapEndValue in tapEndValues {
             if let pTapEndValue = previousTapEndValue {
-                let isSequentialTap = tapEndValue.attachmentInfo.time.timeIntervalSince(pTapEndValue.attachmentInfo.time) <= maximumTapIntervalMilliseconds
+                let isSequentialTap = tapEndValue.relatedGestureValue.time.timeIntervalSince(pTapEndValue.relatedGestureValue.time) <= maximumTapIntervalMilliseconds
 
                 if isSequentialTap {
                     sequentialTapCount += 1
@@ -314,7 +330,7 @@ public extension DetectGestureState {
                 previousTapEndValue = tapEndValue
 
                 if checkOnlyLastTap {
-                    let thisTapEndGestureValue = tapEndValue.attachmentInfo
+                    let thisTapEndGestureValue = tapEndValue.relatedGestureValue
                     let lastGestureValue = tapSequences.last?.asDetectGestureValues.last
                     let isLastTap = thisTapEndGestureValue.id == lastGestureValue?.id
 
@@ -359,7 +375,7 @@ public extension DetectGestureState {
                 guard let lastPinchFingerValue = pinch.values.last?.values.first else {
                     return false
                 }
-                let isLastTap = lastPinchFingerValue.attachmentInfo.id == gestureValues.last?.id
+                let isLastTap = lastPinchFingerValue.relatedGestureValue.id == gestureValues.last?.id
 
                 guard isLastTap else {
                     return false

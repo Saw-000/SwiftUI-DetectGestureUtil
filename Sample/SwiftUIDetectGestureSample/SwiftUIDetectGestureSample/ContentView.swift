@@ -117,22 +117,33 @@ struct ContentView: View {
                     detectGesture: { state in
                         detectGestureState3 = state
 
-                        for tapSequence in state.tapSequences {
-                            for singleFingerTouch in tapSequence.touches {
-                                guard !singleFingerTouch.isOverlapped(with: tapSequence.touches) else {
-                                    continue
-                                }
+                        // タップ中の指たち
+                        let lastFingerTaps = state.tappingFingers
 
-                                let points = singleFingerTouch.values
-                                    .withRawNotifiedGesture() // Get coordinates only when moved.
-                                    .map { $0.fingerEvent.location }
+                        // タップ中の指は一つか
+                        guard lastFingerTaps.count == 1 else {
+                            return nil
+                        }
 
-                                if detectStar(points: points) {
-                                    return .star_swipe
-                                } else if detectCircle(points: points) {
-                                    return .circle
-                                }
-                            }
+                        // タップ中の指
+                        let lastFingerTap = lastFingerTaps.last!
+
+                        // 他の指のタップと被ってないか
+                        guard
+                            let lastTapSequence = state.lastTapSequence,
+                            !lastFingerTap.isOverlapped(with: lastTapSequence.touches)
+                        else {
+                            return nil
+                        }
+
+                        let points = lastFingerTap.values
+                            .withRawNotifiedGesture() // Get coordinates only when moved.
+                            .map { $0.fingerEvent.location }
+
+                        if detectStar(points: points) {
+                            return .star_swipe
+                        } else if detectCircle(points: points) {
+                            return .circle
                         }
 
                         return nil
@@ -146,7 +157,7 @@ struct ContentView: View {
                                 detectedGestureText = "Circle End"
                                 return .finished
                             } else {
-                                detectedGestureText = "Circle location: \(state.lastGestureValue?.locations)"
+                                detectedGestureText = "Circle location: \(state.lastGestureValue?.locations.first)"
                                 return .yet
                             }
 
@@ -162,7 +173,7 @@ struct ContentView: View {
                             }
 
                             let isSwiped = lastTapSequence.anySingleFingerTouchContains { singleFingerTouch, _ in
-                                let lastTapValues = singleFingerTouch.values.map { $0.attachmentInfo }
+                                let lastTapValues = singleFingerTouch.values.map { $0.relatedGestureValue }
 
                                 return state.detected(.swipe(direction: .up), gestureValues: lastTapValues)
                                     || state.detected(.swipe(direction: .left), gestureValues: lastTapValues)

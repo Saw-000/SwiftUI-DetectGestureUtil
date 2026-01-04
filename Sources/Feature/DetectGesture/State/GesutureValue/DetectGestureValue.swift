@@ -58,7 +58,7 @@ public extension DetectGestureValue {
         spatialEventCollection.map { event in
             DetectGestureSingleFingerValue(
                 fingerEvent: event,
-                attachmentInfo: self
+                relatedGestureValue: self
             )
         }
     }
@@ -114,10 +114,10 @@ public extension [DetectGestureValue] {
     }
 
     /// Filter values to only include original gesture events (changed and ended)
-    var filterdWithRawDragGesture: [DetectGestureValue] {
-        let rawDragTimings: [DetectGestureValue.Timing] = [.changed, .ended]
+    var filterdWithRawTimings: [DetectGestureValue] {
+        let rawGestureTimings: [DetectGestureValue.Timing] = [.changed, .ended]
         return self.filter { value in
-            rawDragTimings.contains(value.timing)
+            rawGestureTimings.contains(value.timing)
         }
     }
 
