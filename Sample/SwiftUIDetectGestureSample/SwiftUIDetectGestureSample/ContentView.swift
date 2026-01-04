@@ -23,7 +23,7 @@ struct ContentView: View {
                 detectGesture: { state in
                     if state.detected(.tap()) {
                         return .tap
-                    } else if state.detected(.longTap(minimumMilliSeconds: 1000)) {
+                    } else if state.detected(.longTap(milliSecondsForDetection: 1000)) {
                         return .longTap
                     } else if state.detected(.pinch(minimumDistance: 30)) {
                         return .pinch
@@ -43,7 +43,7 @@ struct ContentView: View {
 
                     case .pinch:
                         // Display center position and distance
-                        if let lastPinch = state.pinchState.last, let lastValue = lastPinch.values.last {
+                        if let lastPinch = state.pinchValues.last, let lastValue = lastPinch.values.last {
                             if lastPinch.isEnded {
                                 detectedGestureText = nil
                                 return .finished
@@ -117,22 +117,33 @@ struct ContentView: View {
                     detectGesture: { state in
                         detectGestureState3 = state
 
-                        for tapSequence in state.gestureValuesAsTapSequences {
-                            for singleFingerTouch in tapSequence.touches {
-                                guard !singleFingerTouch.isOverlapped(with: tapSequence.touches) else {
-                                    continue
-                                }
+                        // Get currently tapping fingers
+                        let lastFingerTaps = state.tappingFingers
 
-                                let points = singleFingerTouch.values
-                                    .withRawNotifiedGesture() // Get coordinates only when moved.
-                                    .map { $0.fingerEvent.location }
+                        // Check if there's exactly one tapping finger
+                        guard lastFingerTaps.count == 1 else {
+                            return nil
+                        }
 
-                                if detectStar(points: points) {
-                                    return .star_swipe
-                                } else if detectCircle(points: points) {
-                                    return .circle
-                                }
-                            }
+                        // Get the tapping finger
+                        let lastFingerTap = lastFingerTaps.last!
+
+                        // Check if not overlapped with other finger taps
+                        guard
+                            let lastTapSequence = state.lastTapSequence,
+                            !lastFingerTap.isOverlapped(with: lastTapSequence.touches)
+                        else {
+                            return nil
+                        }
+
+                        let points = lastFingerTap.values
+                            .withRawNotifiedGesture() // Get coordinates only when moved.
+                            .map { $0.fingerEvent.location }
+
+                        if detectStar(points: points) {
+                            return .star_swipe
+                        } else if detectCircle(points: points) {
+                            return .circle
                         }
 
                         return nil
@@ -146,7 +157,7 @@ struct ContentView: View {
                                 detectedGestureText = "Circle End"
                                 return .finished
                             } else {
-                                detectedGestureText = "Circle location: \(state.lastGestureValue?.locations)"
+                                detectedGestureText = "Circle location: \(state.lastGestureValue?.locations.first)"
                                 return .yet
                             }
 
@@ -162,7 +173,7 @@ struct ContentView: View {
                             }
 
                             let isSwiped = lastTapSequence.anySingleFingerTouchContains { singleFingerTouch, _ in
-                                let lastTapValues = singleFingerTouch.values.map { $0.attachmentInfo }
+                                let lastTapValues = singleFingerTouch.values.map { $0.relatedGestureValue }
 
                                 return state.detected(.swipe(direction: .up), gestureValues: lastTapValues)
                                     || state.detected(.swipe(direction: .left), gestureValues: lastTapValues)

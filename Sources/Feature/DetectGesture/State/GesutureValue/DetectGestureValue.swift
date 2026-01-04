@@ -9,7 +9,7 @@ import MyModuleCore
 import SwiftUI
 
 /// Value containing gesture state information (like DragGesture.Value)
-public struct DetectGestureValue {
+public struct DetectGestureValue: Identifiable {
     /// Timing of gesture state update
     public enum Timing {
         /// Gesture changed
@@ -19,6 +19,9 @@ public struct DetectGestureValue {
         /// Periodic update while gesture is active
         case heartbeat
     }
+
+    /// id
+    public var id: UUID = .init()
 
     /// Spatial event collection from SwiftUI
     public let spatialEventCollection: SpatialEventCollection
@@ -55,7 +58,7 @@ public extension DetectGestureValue {
         spatialEventCollection.map { event in
             DetectGestureSingleFingerValue(
                 fingerEvent: event,
-                attachmentInfo: self
+                relatedGestureValue: self
             )
         }
     }
@@ -63,7 +66,7 @@ public extension DetectGestureValue {
 
 public extension [DetectGestureValue] {
     /// Split into sequences from tap start until all fingers are released
-    private func splittedInTouchSequences() -> [[DetectGestureValue]] {
+    private func splittedInTapSequences() -> [[DetectGestureValue]] {
         var buffer = [[DetectGestureValue]]()
 
         var nextStartIndex = 0
@@ -82,7 +85,7 @@ public extension [DetectGestureValue] {
 
     /// Split into sequences from tap start until all fingers are released
     func asTapSequences() -> [DetectGestureTapSequence] {
-        let formed = self.splittedInTouchSequences().map {
+        let formed = self.splittedInTapSequences().map {
             let singleFingers = $0.flatMap {
                 $0.asSingleFingerValues()
             }
@@ -111,10 +114,10 @@ public extension [DetectGestureValue] {
     }
 
     /// Filter values to only include original gesture events (changed and ended)
-    var filterdWithRawDragGesture: [DetectGestureValue] {
-        let rawDragTimings: [DetectGestureValue.Timing] = [.changed, .ended]
+    var filterdWithRawTimings: [DetectGestureValue] {
+        let rawGestureTimings: [DetectGestureValue.Timing] = [.changed, .ended]
         return self.filter { value in
-            rawDragTimings.contains(value.timing)
+            rawGestureTimings.contains(value.timing)
         }
     }
 
