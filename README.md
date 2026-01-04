@@ -2,11 +2,11 @@
 
 一つのViewに複数のカスタムジェスチャを設定し、その中の一つだけを検知させられるSwift Packageです。
 
-内部的には、SpatialEventGestureを利用しており、マルチタップ（複数の指）にも対応しています。
+内部的にはSpatialEventGestureを利用しています。(v1.3.0以前ばDragGesture)
 
 A Swift Package that allows you to detect only one of multiple custom gestures on a single SwiftUI View.
 
-It uses [SpatialEventGesture](https://developer.apple.com/documentation/swiftui/spatialeventgesture) internally and supports multi-touch (multiple fingers).
+It uses [SpatialEventGesture](https://developer.apple.com/documentation/swiftui/spatialeventgesture) internally for multi-touch (multiple fingers). (DragGesture before v1.3.0).
 
 **Requirements:**
 **v1.4.0+ (with Multi-Fingered Gesture support): iOS 18.0+**
