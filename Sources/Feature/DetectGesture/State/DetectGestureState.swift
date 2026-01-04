@@ -23,7 +23,34 @@ public struct DetectGestureState<GestureDetection: Equatable> {
     public init() {}
 }
 
-// MARK: - Utility
+// MARK: - Common Utility
+
+public extension DetectGestureState {
+    /// Gesture values converted to tap sequences
+    var tapSequences: [DetectGestureTapSequence] {
+        gestureValues.asTapSequences()
+    }
+
+    /// Last tap sequence
+    var lastTapSequence: DetectGestureTapSequence? {
+        tapSequences.last
+    }
+
+    /// Last Detected Gestrue Value
+    var lastGestureValue: DetectGestureValue? {
+        gestureValues.last
+    }
+
+    /// Whether gesture has already been detected
+    var gestureDetected: Bool {
+        detection != nil
+    }
+
+    /// Process taps for each individual finger
+    func processPerSingleFingerTouch(_ completion: (DetectGestureSingleFingerTouch, DetectGestureTapSequence) -> Void) {
+        gestureValues.processPerSingleFingerTouch(completion)
+    }
+}
 
 // MARK: - Default Gesture Detection
 
@@ -297,9 +324,9 @@ public extension DetectGestureState {
         minimumDistance: CGFloat
     ) -> Bool {
         // Calculate pinch state from gesture values
-        let pinches = calculatePinchState(from: gestureValues)
+        let pinches = pinchValues(from: gestureValues)
 
-        // Detect pinch gesture using pinchState
+        // Detect pinch gesture using pinchValues
         return pinches.contains { pinch in
             guard let first = pinch.values.first else {
                 return false
@@ -314,88 +341,18 @@ public extension DetectGestureState {
         }
     }
 
+    /// gestureValuesのうちピンチに関するジェスチャ情報を抽出する。
+    var pinchValues: [DetectGesturePinch] {
+        pinchValues(from: tapSequences.asDetectGestureValues)
+    }
+
+    /// gestureValuesのうちピンチに関するジェスチャ情報を抽出する。
+    func pinchValues(from tapSequences: [DetectGestureTapSequence]) -> [DetectGesturePinch] {
+        pinchValues(from: tapSequences.asDetectGestureValues)
+    }
+
     /// Calculate pinch state from gesture values
-    private func calculatePinchState(from gestureValues: [DetectGestureValue]) -> [DetectGesturePinch] {
-        var pinches: [DetectGesturePinch] = []
-        var currentPinchValues: [DetectGesturePinchValue] = []
-        var currentEventIDs: Set<SpatialEventCollection.Event.ID>? = nil
-
-        for gestureValue in gestureValues {
-            // Check if there are exactly 2 fingers
-            if gestureValue.fingerCount == 2 {
-                let events = Array(gestureValue.spatialEventCollection)
-                var eventIDs: Set<SpatialEventCollection.Event.ID> {
-                    Set(events.map { $0.id })
-                }
-
-                // Check if this is the same pinch event (same Event.ID pair)
-                if let current = currentEventIDs, current == eventIDs {
-                    // Same pinch event, add to current
-                    let pinchValue = DetectGesturePinchValue(events: events)
-                    currentPinchValues.append(pinchValue)
-                } else {
-                    // Different pinch event or new pinch started
-                    // Save previous pinch if exists (mark as ended)
-                    if !currentPinchValues.isEmpty {
-                        pinches.append(DetectGesturePinch(values: currentPinchValues, isEnded: true))
-                    }
-
-                    // Start new pinch
-                    currentPinchValues = [DetectGesturePinchValue(events: events)]
-                    currentEventIDs = eventIDs
-                }
-            } else {
-                // Not 2 fingers, end current pinch if exists
-                if !currentPinchValues.isEmpty {
-                    pinches.append(DetectGesturePinch(values: currentPinchValues, isEnded: true))
-                    currentPinchValues = []
-                    currentEventIDs = nil
-                }
-            }
-        }
-
-        // Don't forget to add the last pinch if exists
-        // Determine if the last pinch is ended
-        if !currentPinchValues.isEmpty {
-            let isEnded = isPinchEnded(
-                eventIDs: currentEventIDs,
-                lastGestureValue: gestureValues.last
-            )
-            pinches.append(DetectGesturePinch(values: currentPinchValues, isEnded: isEnded))
-        }
-
-        return pinches
-    }
-}
-
-public extension DetectGestureState {
-    /// Gesture values converted to tap sequences
-    var gestureValuesAsTapSequences: [DetectGestureTapSequence] {
-        gestureValues.asTapSequences()
-    }
-
-    /// Last tap sequence
-    var lastTapSequence: DetectGestureTapSequence? {
-        gestureValuesAsTapSequences.last
-    }
-
-    /// Whether gesture has already been detected
-    var gestureDetected: Bool {
-        detection != nil
-    }
-
-    /// Last Detected Gestrue Value
-    var lastGestureValue: DetectGestureValue? {
-        gestureValues.last
-    }
-
-    /// Process taps for each individual finger
-    func processPerSingleFingerTouch(_ completion: (DetectGestureSingleFingerTouch, DetectGestureTapSequence) -> Void) {
-        gestureValues.processPerSingleFingerTouch(completion)
-    }
-
-    /// ピンチに関する情報
-    var pinchState: [DetectGesturePinch] {
+    private func pinchValues(from gestureValues: [DetectGestureValue]) -> [DetectGesturePinch] {
         var pinches: [DetectGesturePinch] = []
         var currentPinchValues: [DetectGesturePinchValue] = []
         var currentEventIDs: Set<SpatialEventCollection.Event.ID>? = nil

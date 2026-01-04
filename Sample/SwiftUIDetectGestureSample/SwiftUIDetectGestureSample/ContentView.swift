@@ -43,7 +43,7 @@ struct ContentView: View {
 
                     case .pinch:
                         // Display center position and distance
-                        if let lastPinch = state.pinchState.last, let lastValue = lastPinch.values.last {
+                        if let lastPinch = state.pinchValues.last, let lastValue = lastPinch.values.last {
                             if lastPinch.isEnded {
                                 detectedGestureText = nil
                                 return .finished
@@ -117,7 +117,7 @@ struct ContentView: View {
                     detectGesture: { state in
                         detectGestureState3 = state
 
-                        for tapSequence in state.gestureValuesAsTapSequences {
+                        for tapSequence in state.tapSequences {
                             for singleFingerTouch in tapSequence.touches {
                                 guard !singleFingerTouch.isOverlapped(with: tapSequence.touches) else {
                                     continue
