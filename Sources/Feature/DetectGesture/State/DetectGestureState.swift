@@ -58,85 +58,93 @@ public extension DetectGestureState {
     /// Whether the specified default gesture has already been detected
     func detected(
         _ wantToDetectGesture: DefaultDetectGesture,
-        gestureValues: [DetectGestureValue]? = nil,
-        checkOnlyLastTapSequence: Bool = false
+        gestureValues: [DetectGestureValue]? = nil
     ) -> Bool {
         let gestureValues = gestureValues ?? self.gestureValues
         let tapSequences = gestureValues.asTapSequences()
 
         return detected(
             wantToDetectGesture,
-            tapSequences: tapSequences,
-            checkOnlyLastTapSequence: checkOnlyLastTapSequence
+            tapSequences: tapSequences
         )
     }
 
     /// Whether the specified default gesture has already been detected
     func detected(
         _ wantToDetectGesture: DefaultDetectGesture,
-        tapSequences: [DetectGestureTapSequence],
-        checkOnlyLastTapSequence: Bool = false
+        tapSequences: [DetectGestureTapSequence]
     ) -> Bool {
-        let tapSequences = checkOnlyLastTapSequence
-            ? (tapSequences.last != nil ? [tapSequences.last!] : [])
-            : tapSequences
-
         switch wantToDetectGesture {
-        case let .tap(allowMultiTap):
-            return detectTap(tapSequences: tapSequences, allowMultiTap: allowMultiTap)
-
-        case let .longTap(milliSecondsForDetection, allowMultiTap):
-            return detectLongTap(
+        case let .tap(allowMultiTap, checkOnlyLastTap):
+            return detectTap(
                 tapSequences: tapSequences,
-                milliSecondsForDetection: milliSecondsForDetection,
-                allowMultiTap: allowMultiTap
+                allowMultiTap: allowMultiTap,
+                checkOnlyLastTap: checkOnlyLastTap
             )
 
-        case let .drag(minimumDistance, allowMultiTap):
+        case let .longTap(milliSecondsForDetection, allowMultiTap, checkOnlyLastTap):
+            return detectLongTap(
+                tapSequences: tapSequences,
+                milliSecondsForDetection: milliSecondsForDetection ?? Const.longTapDefaultMilliSecondsForDetection,
+                allowMultiTap: allowMultiTap,
+                checkOnlyLastTap: checkOnlyLastTap
+            )
+
+        case let .drag(minimumDistance, allowMultiTap, checkOnlyLastTap):
             return detectDrag(
                 tapSequences: tapSequences,
                 minimumDistance: minimumDistance,
-                allowMultiTap: allowMultiTap
+                allowMultiTap: allowMultiTap,
+                checkOnlyLastTap: checkOnlyLastTap
             )
 
-        case let .slide(direction, minimumDistance, allowMultiTap):
+        case let .slide(direction, minimumDistance, allowMultiTap, checkOnlyLastTap):
             return detectSlide(
                 tapSequences: tapSequences,
                 direction: direction,
                 minimumDistance: minimumDistance,
-                allowMultiTap: allowMultiTap
+                allowMultiTap: allowMultiTap,
+                checkOnlyLastTap: checkOnlyLastTap
             )
 
-        case let .swipe(direction: direction, allowMultiTap):
+        case let .swipe(direction: direction, allowMultiTap, checkOnlyLastTap):
             return detectSwipe(
                 tapSequences: tapSequences,
                 direction: direction,
-                allowMultiTap: allowMultiTap
+                allowMultiTap: allowMultiTap,
+                checkOnlyLastTap: checkOnlyLastTap
             )
 
-        case let .sequentialTap(count, maximumTapIntervalMilliseconds):
+        case let .sequentialTap(count, maximumTapIntervalMilliseconds, checkOnlyLastTap):
             return detectSequentialTap(
                 tapSequences: tapSequences,
                 count: count,
-                maximumTapIntervalMilliseconds: maximumTapIntervalMilliseconds
+                maximumTapIntervalMilliseconds: maximumTapIntervalMilliseconds,
+                checkOnlyLastTap: checkOnlyLastTap
             )
 
-        case let .pinch(minimumDistance):
+        case let .pinch(minimumDistance, checkOnlyLastTap):
             return detectPinch(
                 tapSequences: tapSequences,
-                minimumDistance: minimumDistance
+                minimumDistance: minimumDistance,
+                checkOnlyLastTap: checkOnlyLastTap
             )
         }
     }
 
     /// Detect Tap Gesture
-    private func detectTap(tapSequences: [DetectGestureTapSequence], allowMultiTap: Bool = false) -> Bool {
-        tapSequences.anySingleFingerTouchContains { singleFingerTouch, touchSequence in
+    private func detectTap(
+        tapSequences: [DetectGestureTapSequence],
+        allowMultiTap: Bool,
+        checkOnlyLastTap: Bool
+    ) -> Bool {
+        tapSequences.anySingleFingerTouchContains { singleFingerTouch, tapSequence in
             guard
                 let lastValue = singleFingerTouch.values.last,
+                !checkOnlyLastTap || lastValue.attachmentInfo.id == tapSequence.asDetectGestureValues.last?.id, // Last tap
                 lastValue.fingerEvent.phase == .ended, // Tap ended
                 lastValue.isInView(), // Tap is within view
-                allowMultiTap || !singleFingerTouch.isOverlapped(with: touchSequence.touches) // Not overlapped with other finger taps (optional)
+                allowMultiTap || !singleFingerTouch.isOverlapped(with: tapSequence.touches) // Not overlapped with other finger taps (optional)
             else {
                 return false
             }
@@ -147,15 +155,15 @@ public extension DetectGestureState {
     /// Detect Long Tap Gesture
     private func detectLongTap(
         tapSequences: [DetectGestureTapSequence],
-        milliSecondsForDetection: TimeInterval? = nil,
-        allowMultiTap: Bool = false
+        milliSecondsForDetection: TimeInterval,
+        allowMultiTap: Bool,
+        checkOnlyLastTap: Bool
     ) -> Bool {
-        let milliSecondsForDetection = milliSecondsForDetection ?? Const.longTapDefaultMilliSecondsForDetection
-
-        return tapSequences.anySingleFingerTouchContains { singleFingerTouch, touchSequence in
+        return tapSequences.anySingleFingerTouchContains { singleFingerTouch, tapSequence in
             guard
+                let lastValue = singleFingerTouch.values.last, !checkOnlyLastTap || lastValue.attachmentInfo.id == tapSequence.asDetectGestureValues.last?.id, // last tap
                 let duration = singleFingerTouch.duration,
-                allowMultiTap || !singleFingerTouch.isOverlapped(with: touchSequence.touches) // Not overlapped with other finger taps (optional)
+                allowMultiTap || !singleFingerTouch.isOverlapped(with: tapSequence.touches) // Not overlapped with other finger taps (optional)
             else {
                 return false
             }
@@ -172,11 +180,13 @@ public extension DetectGestureState {
     private func detectDrag(
         tapSequences: [DetectGestureTapSequence],
         minimumDistance: CGFloat,
-        allowMultiTap: Bool = false
+        allowMultiTap: Bool,
+        checkOnlyLastTap: Bool
     ) -> Bool {
-        tapSequences.anySingleFingerTouchContains { singleFingerTouch, touchSequence in
+        tapSequences.anySingleFingerTouchContains { singleFingerTouch, tapSequence in
             guard
-                allowMultiTap || !singleFingerTouch.isOverlapped(with: touchSequence.touches)
+                allowMultiTap || !singleFingerTouch.isOverlapped(with: tapSequence.touches),
+                let lastValue = singleFingerTouch.values.last, !checkOnlyLastTap || lastValue.attachmentInfo.id == tapSequence.asDetectGestureValues.last?.id // last tap
             else {
                 return false
             }
@@ -190,11 +200,13 @@ public extension DetectGestureState {
         tapSequences: [DetectGestureTapSequence],
         direction: DefaultDetectGestureDirection,
         minimumDistance: CGFloat,
-        allowMultiTap: Bool = false
+        allowMultiTap: Bool,
+        checkOnlyLastTap: Bool
     ) -> Bool {
-        tapSequences.anySingleFingerTouchContains { singleFingerTouch, touchSequence in
+        tapSequences.anySingleFingerTouchContains { singleFingerTouch, tapSequence in
             guard
-                allowMultiTap || !singleFingerTouch.isOverlapped(with: touchSequence.touches)
+                allowMultiTap || !singleFingerTouch.isOverlapped(with: tapSequence.touches),
+                let lastValue = singleFingerTouch.values.last, !checkOnlyLastTap || lastValue.attachmentInfo.id == tapSequence.asDetectGestureValues.last?.id // last tap
             else {
                 return false
             }
@@ -218,16 +230,20 @@ public extension DetectGestureState {
     private func detectSwipe(
         tapSequences: [DetectGestureTapSequence],
         direction: DefaultDetectGestureDirection,
-        allowMultiTap: Bool = false
+        allowMultiTap: Bool,
+        checkOnlyLastTap: Bool
     ) -> Bool {
-        tapSequences.anySingleFingerTouchContains { singleFingerTouch, touchSequence in
+        tapSequences.anySingleFingerTouchContains { singleFingerTouch, tapSequence in
             // Finger is released
-            guard singleFingerTouch.values.last?.fingerEvent.phase == .ended else {
+            guard
+                singleFingerTouch.values.last?.fingerEvent.phase == .ended,
+                let lastValue = singleFingerTouch.values.last, !checkOnlyLastTap || lastValue.attachmentInfo.id == tapSequence.asDetectGestureValues.last?.id // last tap
+            else {
                 return false
             }
 
             guard
-                allowMultiTap || !singleFingerTouch.isOverlapped(with: touchSequence.touches)
+                allowMultiTap || !singleFingerTouch.isOverlapped(with: tapSequence.touches)
             else {
                 return false
             }
@@ -251,7 +267,8 @@ public extension DetectGestureState {
     private func detectSequentialTap(
         tapSequences: [DetectGestureTapSequence],
         count: Int,
-        maximumTapIntervalMilliseconds: TimeInterval
+        maximumTapIntervalMilliseconds: TimeInterval,
+        checkOnlyLastTap: Bool
     ) -> Bool {
         guard count > 0 else {
             return false
@@ -294,12 +311,20 @@ public extension DetectGestureState {
                     sequentialTapCount = 1
                 }
 
+                previousTapEndValue = tapEndValue
+
+                if checkOnlyLastTap {
+                    let thisTapEndGestureValue = tapEndValue.attachmentInfo
+                    let lastGestureValue = tapSequences.last?.asDetectGestureValues.last
+                    let isLastTap = thisTapEndGestureValue.id == lastGestureValue?.id
+
+                    guard isLastTap else { continue }
+                }
+
                 // Detect if sequential tap count exceeds specified count
                 if sequentialTapCount >= count {
                     return true
                 }
-
-                previousTapEndValue = tapEndValue
             } else {
                 previousTapEndValue = tapEndValue
                 continue
@@ -313,24 +338,38 @@ public extension DetectGestureState {
     /// Detect Pinch Gesture
     private func detectPinch(
         tapSequences: [DetectGestureTapSequence],
-        minimumDistance: CGFloat
+        minimumDistance: CGFloat,
+        checkOnlyLastTap: Bool
     ) -> Bool {
-        detectPinch(gestureValues: tapSequences.asDetectGestureValues, minimumDistance: minimumDistance)
+        detectPinch(gestureValues: tapSequences.asDetectGestureValues, minimumDistance: minimumDistance, checkOnlyLastTap: checkOnlyLastTap)
     }
 
     /// Detect Pinch Gesture
     private func detectPinch(
         gestureValues: [DetectGestureValue],
-        minimumDistance: CGFloat
+        minimumDistance: CGFloat,
+        checkOnlyLastTap: Bool
     ) -> Bool {
         // Calculate pinch state from gesture values
         let pinches = pinchValues(from: gestureValues)
 
         // Detect pinch gesture using pinchValues
         return pinches.contains { pinch in
+            if checkOnlyLastTap {
+                guard let lastPinchFingerValue = pinch.values.last?.values.first else {
+                    return false
+                }
+                let isLastTap = lastPinchFingerValue.attachmentInfo.id == gestureValues.last?.id
+
+                guard isLastTap else {
+                    return false
+                }
+            }
+
             guard let first = pinch.values.first else {
                 return false
             }
+
             let initialDistance = first.distance
 
             // Check if any point in the pinch exceeds the minimum distance change
@@ -360,15 +399,15 @@ public extension DetectGestureState {
         for gestureValue in gestureValues {
             // Check if there are exactly 2 fingers
             if gestureValue.fingerCount == 2 {
-                let events = Array(gestureValue.spatialEventCollection)
+                let fingerValues = gestureValue.asSingleFingerValues()
                 var eventIDs: Set<SpatialEventCollection.Event.ID> {
-                    Set(events.map { $0.id })
+                    Set(fingerValues.map { $0.fingerEvent.id })
                 }
 
                 // Check if this is the same pinch event (same Event.ID pair)
                 if let current = currentEventIDs, current == eventIDs {
                     // Same pinch event, add to current
-                    let pinchValue = DetectGesturePinchValue(events: events)
+                    let pinchValue = DetectGesturePinchValue(values: fingerValues)
                     currentPinchValues.append(pinchValue)
                 } else {
                     // Different pinch event or new pinch started
@@ -378,7 +417,7 @@ public extension DetectGestureState {
                     }
 
                     // Start new pinch
-                    currentPinchValues = [DetectGesturePinchValue(events: events)]
+                    currentPinchValues = [DetectGesturePinchValue(values: fingerValues)]
                     currentEventIDs = eventIDs
                 }
             } else {
