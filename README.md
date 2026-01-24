@@ -1,13 +1,13 @@
 # SwiftUI-DetectGestureUtil
 
+// TODO: gifに差し替え
+<img width="300" alt="Simulator Screenshot - iPad (A16) - 2025-11-03 at 05 22 09" src="https://github.com/user-attachments/assets/1ee868bc-91ad-48bd-9a0a-c507ba95c56a" />
+
 一つのViewに複数のカスタムジェスチャを設定し、その中の一つだけを検知させられる機能を提供するSwift Packageです。
 
 A Swift Package that allows you to detect only one of multiple custom gestures on a single SwiftUI View.
 
 It is a wrapper of [SpatialEventGesture](https://developer.apple.com/documentation/swiftui/spatialeventgesture) (Official API).
-
-// TODO: gifに差し替え
-<img width="400" alt="Simulator Screenshot - iPad (A16) - 2025-11-03 at 05 22 09" src="https://github.com/user-attachments/assets/1ee868bc-91ad-48bd-9a0a-c507ba95c56a" />
 
 ## Install
 
