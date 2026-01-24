@@ -110,9 +110,9 @@ private func detectCircle(state: DetectGestureState<MyGestureDetection>) -> Bool
 }
 ```
 
-## Custom Types
+## Document
 
-[See here](Support/types.md)
+[See here for detail](Support/simple_document.md)
 
 ## Utility
 

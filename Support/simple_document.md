@@ -1,6 +1,4 @@
-# Custom Types
-
-Here explains the library-specific types.
+# Simple Document
 
 ## Introduction: detectGesture() is a wrapper of SpatialEventGesture (Official API).
 
@@ -23,7 +21,7 @@ SomeView()
 // detectGesture()
 SomeView()
     .detectGesture(
-        MyGestureDetection.self,
+        MyGesture.self,
         detect: { state in // : DetectGestureState
 
         },
@@ -49,7 +47,7 @@ TODO: 図
   - [注意] idの一意性は同じシークエンス内でのみ保証されます。異なるシークエンスでは同じ値が使いまわされる可能性があります。
 - [注意] 指が動いていない間はonUpdated/onEndedは呼ばれません。
 
-## DetectGesture (This API) の仕様
+## DetectGesture (This API)
 
 TODO: 図
 
@@ -57,7 +55,8 @@ TODO: 図
 - `DetectGestureTouchSequence`: 一つのシークエンス。`[DetectGestureTouchSequence.Value]`を格納する。
 - `SpatialEventGesture`と違い指が止まっている間も新しい値が生成され、`detect: {}`や`handle: {}`などをコールします。
 
-## Utilities
+## 変換 Utilities
+
 `detectGesture()`のクロージャで渡される`DetectGestureState`は`gestureValues: [DetectGestureTouchSequence.Value]`プロパティにタップ情報を格納している。そのままで使いにくい場合は以下のようなユーティリティ型に変換してから使うと良い。
 
 ### シークエンスごとにまとめる
@@ -74,7 +73,8 @@ TODO: 図
 
 ### ピンチ用に変換
 
-TODO: 図
-
 - ピンチジェスチャ用に`[DetectGesturePinchCollection]`型に変換できる。
-- DetectGesturePinchCollection,DetectGesturePinchCollection.Event: 図に示す通り。
+
+### その他の変換
+
+必要そうなのは作った。
