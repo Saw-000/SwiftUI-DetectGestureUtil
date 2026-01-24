@@ -1,53 +1,20 @@
 # SwiftUI-DetectGestureUtil
 
-一つのViewに複数のカスタムジェスチャを設定し、その中の一つだけを検知させられるSwift Packageです。
-
-内部的にはSpatialEventGestureを利用しています。(v1.3.0以前ばDragGesture)
+一つのViewに複数のカスタムジェスチャを設定し、その中の一つだけを検知させられる機能を提供するSwift Packageです。
 
 A Swift Package that allows you to detect only one of multiple custom gestures on a single SwiftUI View.
 
-It uses [SpatialEventGesture](https://developer.apple.com/documentation/swiftui/spatialeventgesture) internally for multi-touch (multiple fingers). (DragGesture before v1.3.0).
+It is a wrapper of [SpatialEventGesture](https://developer.apple.com/documentation/swiftui/spatialeventgesture) (Official API).
 
-**Requirements:**
-**v1.4.0+ (with Multi-Fingered Gesture support): iOS 18.0+**
-**v1.3.0- (only Single-Fingered Gesture support): iOS 14.0+**
-
+// TODO: gifに差し替え
 <img width="400" alt="Simulator Screenshot - iPad (A16) - 2025-11-03 at 05 22 09" src="https://github.com/user-attachments/assets/1ee868bc-91ad-48bd-9a0a-c507ba95c56a" />
 
-(Sample app screenshot)
-
-## Install
-
-=> Swift Package Manager
-
-```Package.swift
-// Package.swift
-
-let package = Package(
-    ...
-    dependencies: [
-        .package(url: "https://github.com/Saw-000/SwiftUI-DetectGestureUtil", from: "<version>")
-    ],
-    targets: [
-        .target(
-            name: "HogeModule",
-            dependencies: [
-                .product(name: "SwiftUI-DetectGestureUtil", package: "SwiftUI-DetectGestureUtil")
-            ]
-        ),
-    ]
-)
-```
-
-or by Xcode.
 
 ## Usage
 
-You can use `View.detectGesture()`.
+You can only use `View.detectGesture(detect:handle:_:)`.
 
-You can set multiple gestures on a single View and detect only one of them.
-
-It is divided into two phases: the gesture detection phase and the gesture handling phase after detection.
+It is divided into two phases: the detection phase and the handling phase.
 
 ```swift
 import SwiftUI
@@ -67,7 +34,7 @@ struct ContentView: View {
         }
         .detectGesture(
             MyGestureDetection.self,
-            detectGesture: { state in // an instance of DetectGestureState<MyGestureDetection>. See DetectGestureState type to know gesture information you can get from this instance.
+            detect: { state in // an instance of DetectGestureState<MyGestureDetection>. See DetectGestureState type to know gesture information you can get from this instance.
 
                 // Gesture detection phase
 
@@ -156,54 +123,44 @@ private func detectCircle(points: [CGPoint]) -> Bool {
 }
 ```
 
+## Types
+[See here](Support/types.md)
+
+## Utility
 ### Default Gesture Detection
 Tap, swipe, pinch, etc.
 
 See this class: [DefaultDetectGesture](Sources/Feature/DetectGesture/DefaultDetectGesture.swift#L5)
 
-### DetectGestureState
-You can access it in each handler of `View.detectGesture()`.
 
-- `gestureValues: [DetectGestureValue]`: History of gesture information
-- `detected(_:gestureValues:) -> Bool`: Whether the specified default gesture has already been detected
-- `gestureValuesAsTapSequences: [DetectGestureTapSequence]`: Gesture values converted to tap sequences
-- `lastTapSequence: DetectGestureTapSequence?`: Last tap sequence
-- `lastGestureValue: DetectGestureValue?`: Last detected gesture value
-- `processPerSingleFingerTouch(_:)`: Process taps for each individual finger
-- etc...
-
-### DetectGestureValue
-Value containing gesture state information.
-
-- `spatialEventCollection: SpatialEventCollection`: Spatial event collection from SwiftUI (supports multi-touch)
-- `geometryProxy: GeometryProxy`: Geometry proxy for view bounds
-- `timing: Timing`: Timing of this state update (`.changed`, `.ended`, or `.heartbeat`)
-- `time: Date`: Timestamp of this state
-- `fingerCount: Int`: Number of fingers currently touching
-- `locations: [CGPoint]`: Locations of all fingers
-- `isAllFingersInView() -> Bool`: Check if all fingers are within view bounds
-- `asSingleFingerValues() -> [DetectGestureSingleFingerValue]`: Convert to single finger values for individual finger processing
-- etc.
-
-### DetectGestureSingleFingerTouch Extensions
-
-Convenience properties added to [SpatialEventCollection](https://developer.apple.com/documentation/swiftui/spatialeventcollection) for easier access:
-
-- `translation: CGSize`: Translation from start location
-- `velocity: CGSize`: Velocity of the gesture movement
-- `diff: CGPoint`: Distance moved from the initial tap location
-- etc.
-
-For more information about SpatialEventGesture, see [Apple's official documentation](https://developer.apple.com/documentation/swiftui/spatialeventgesture).
-
-## Sample
+### Sample
 Run the project in Sample folder.
 
-## For Dev
-### swiftformat
-```
-SwiftFormatPackage/swiftformat .
+## Install
+
+=> Swift Package Manager
+
+```Package.swift
+// Package.swift
+
+let package = Package(
+    ...
+    dependencies: [
+        .package(url: "https://github.com/Saw-000/SwiftUI-DetectGestureUtil", from: "<version>")
+    ],
+    targets: [
+        .target(
+            name: "HogeModule",
+            dependencies: [
+                .product(name: "SwiftUI-DetectGestureUtil", package: "SwiftUI-DetectGestureUtil")
+            ]
+        ),
+    ]
+)
 ```
 
-## Reference
-None
+or by Xcode.
+
+### Requirements
+- **v1.4.0+ (Multi-Fingered Gesture support): iOS 18.0+**
+- **~v1.3.0 (Single-Fingered Gesture support): iOS 14.0+**
