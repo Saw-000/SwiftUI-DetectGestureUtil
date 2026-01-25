@@ -20,8 +20,8 @@ public struct DetectGestureFingerSequence {
         public let events: [Event]
 
         public init(eventID: SpatialEventCollection.Event.ID, values: [Event]) {
-            self.spatialEventCollectionEventID = eventID
-            self.events = values.sortedByTimestamp
+            spatialEventCollectionEventID = eventID
+            events = values.sortedByTimestamp
         }
     }
 
@@ -49,7 +49,7 @@ public extension [DetectGestureFingerSequence.Finger.Event] {
     /// Filter values to only include original gesture events (changed and ended)
     func withRawNotifiedGesture() -> [DetectGestureFingerSequence.Finger.Event] {
         let rawGestureTimings: [DetectGestureTouchSequence.Value.Timing] = [.changed, .ended]
-        return self.filter { value in
+        return filter { value in
             rawGestureTimings.contains(value.relatedGestureValue.timing)
         }
     }

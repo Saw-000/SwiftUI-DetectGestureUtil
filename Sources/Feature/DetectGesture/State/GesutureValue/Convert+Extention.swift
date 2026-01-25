@@ -19,7 +19,7 @@ public extension DetectGestureTouchSequence {
             $0.time < $1.time
         })
 
-        let fingers =  Dictionary(
+        let fingers = Dictionary(
             grouping: fingerEvents,
             by: { $0.spatialEventCollectionEvent.id }
         )
@@ -32,7 +32,7 @@ public extension DetectGestureTouchSequence {
         .sorted(by: {
             $0.events.first!.time < $1.events.first!.time
         })
-        
+
         return DetectGestureFingerSequence(fingers: fingers)
     }
 }
@@ -59,14 +59,14 @@ public extension [DetectGestureTouchSequence.Value] {
         var buffer = [DetectGestureTouchSequence]()
 
         var nextStartIndex = 0
-        for i in 0 ... self.count - 1 {
+        for i in 0 ... count - 1 {
             let value = self[i]
             if value.timing == .ended {
                 let sequence = DetectGestureTouchSequence(values: Array(self[nextStartIndex ... i]))
                 buffer.append(sequence)
                 nextStartIndex = i + 1
-            } else if i == self.count - 1 {
-                let sequence = DetectGestureTouchSequence(values: Array(self[nextStartIndex ... self.count - 1]))
+            } else if i == count - 1 {
+                let sequence = DetectGestureTouchSequence(values: Array(self[nextStartIndex ... count - 1]))
                 buffer.append(sequence)
             }
         }
@@ -83,7 +83,7 @@ public extension [DetectGestureTouchSequence.Value] {
 
     /// Process taps for each individual finger
     func processPerFinger(_ completion: (DetectGestureFingerSequence.Finger, DetectGestureFingerSequence) -> Void) {
-        for tapSequence in self.asFingerSequences() {
+        for tapSequence in asFingerSequences() {
             for singleFingerValues in tapSequence.fingers {
                 completion(singleFingerValues, tapSequence)
             }
@@ -92,7 +92,7 @@ public extension [DetectGestureTouchSequence.Value] {
 
     /// Check if any single finger tap satisfies the condition
     func anyFingerContains(_ completion: @escaping (DetectGestureFingerSequence.Finger, DetectGestureFingerSequence) -> Bool) -> Bool {
-        self.asFingerSequences().anyFingerContains(completion)
+        asFingerSequences().anyFingerContains(completion)
     }
 }
 
