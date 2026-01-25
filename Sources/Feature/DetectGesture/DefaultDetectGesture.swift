@@ -13,7 +13,7 @@ public enum DefaultDetectGesture {
     case slide(direction: DefaultDetectGestureDirection, minimumDistance: CGFloat, allowMultiTap: Bool = false, checkOnlyLastTap: Bool = true)
     // TODO: Configure velocity
     /// Swipe gesture in a specific direction
-    case swipe(direction: DefaultDetectGestureDirection, allowMultiTap: Bool = false, checkOnlyLastTapSequence: Bool = true)
+    case swipe(direction: DefaultDetectGestureDirection, minimumVelocity: CGFloat = 300, allowMultiTap: Bool = false, checkOnlyLastTapSequence: Bool = true)
     /// Sequential tap gesture with count and maximum interval between taps
     case sequentialTap(count: Int, maximumTapIntervalMilliseconds: TimeInterval, checkOnlyLastTap: Bool = true)
     /// Pinch gesture on a specific axis with minimum distance change

@@ -3,9 +3,6 @@ import SwiftUI
 
 /// Constants for gesture detection
 private enum Const {
-    /// Minimum velocity for swipe gesture detection
-    static let swipeMinimumVelocity: CGFloat = 300
-
     /// Default duration threshold for long tap detection in milliseconds
     static let longTapDefaultMilliSecondsForDetection: TimeInterval = 1000
 }
@@ -125,9 +122,10 @@ public extension DetectGestureState {
                 checkOnlyLastTap: checkOnlyLastTap
             )
 
-        case let .swipe(direction: direction, allowMultiTap, checkOnlyLastTap):
+        case let .swipe(direction: direction, minimumVelocity, allowMultiTap, checkOnlyLastTap):
             return detectSwipe(
                 fingerSequences: fingerSequences,
+                minimumVelocity: minimumVelocity,
                 direction: direction,
                 allowMultiTap: allowMultiTap,
                 checkOnlyLastTap: checkOnlyLastTap
@@ -247,6 +245,7 @@ public extension DetectGestureState {
     /// Detect Swipe Gesture
     private func detectSwipe(
         fingerSequences: [DetectGestureFingerSequence],
+        minimumVelocity: CGFloat,
         direction: DefaultDetectGestureDirection,
         allowMultiTap: Bool,
         checkOnlyLastTap: Bool
@@ -270,13 +269,13 @@ public extension DetectGestureState {
 
             return switch direction {
             case .up:
-                -velocity.height >= Const.swipeMinimumVelocity
+                -velocity.height >= minimumVelocity
             case .down:
-                velocity.height >= Const.swipeMinimumVelocity
+                velocity.height >= minimumVelocity
             case .left:
-                -velocity.width >= Const.swipeMinimumVelocity
+                -velocity.width >= minimumVelocity
             case .right:
-                velocity.width >= Const.swipeMinimumVelocity
+                velocity.width >= minimumVelocity
             }
         }
     }
