@@ -130,15 +130,15 @@ struct ContentView: View {
 
                         // Check if not overlapped with other finger taps
                         guard
-                            let lastTapSequence = state.lastTapSequence,
-                            !lastFingerTap.isOverlapped(with: lastTapSequence.touches)
+                            let lastTapSequence = state.lastFingerSequence,
+                            !lastFingerTap.isOverlapped(with: lastTapSequence.fingers)
                         else {
                             return nil
                         }
 
-                        let points = lastFingerTap.values
+                        let points = lastFingerTap.events
                             .withRawNotifiedGesture() // Get coordinates only when moved.
-                            .map { $0.fingerEvent.location }
+                            .map { $0.spatialEventCollectionEvent.location }
 
                         if detectStar(points: points) {
                             return .star_swipe
@@ -166,14 +166,14 @@ struct ContentView: View {
 
                             // End when swiped
                             guard
-                                let lastTapSequence = state.lastTapSequence,
-                                lastTapSequence.touches.count > 0
+                                let lastTapSequence = state.lastFingerSequence,
+                                lastTapSequence.fingers.count > 0
                             else {
                                 return .yet
                             }
 
-                            let isSwiped = lastTapSequence.anySingleFingerTouchContains { singleFingerTouch, _ in
-                                let lastTapValues = singleFingerTouch.values.map { $0.relatedGestureValue }
+                            let isSwiped = lastTapSequence.anyFingerContains { singleFingerTouch, _ in
+                                let lastTapValues = singleFingerTouch.events.map { $0.relatedGestureValue }
 
                                 return state.detected(.swipe(direction: .up), gestureValues: lastTapValues)
                                     || state.detected(.swipe(direction: .left), gestureValues: lastTapValues)
@@ -196,8 +196,8 @@ struct ContentView: View {
 
                 // Drawing trajectory
                 Path { path in
-                    detectGestureState3?.processPerSingleFingerTouch { singleFingerTouch, _ in
-                        let points = singleFingerTouch.values.map { $0.fingerEvent.location }
+                    detectGestureState3?.processPerFinger { singleFingerTouch, _ in
+                        let points = singleFingerTouch.events.map { $0.spatialEventCollectionEvent.location }
                         guard let first = points.first else { return }
                         path.move(to: first)
                         for p in points {
@@ -246,7 +246,7 @@ enum MyGestureDetection3 {
     case star_swipe
 }
 
-// MARK: - Shape detection algorithms
+// MARK: - Shape detection algorithms (AI generated)
 
 /// Simple circle detection
 private func detectCircle(points: [CGPoint]) -> Bool {

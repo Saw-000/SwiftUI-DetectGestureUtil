@@ -9,24 +9,24 @@ public struct DetectGestureFingerSequence {
         /// DetectGestureTouchSequence.Value formatted to focus on a single finger event
         public struct Event {
             /// event of one finger.
-            public let fingerEvent: SpatialEventCollection.Event
+            public let spatialEventCollectionEvent: SpatialEventCollection.Event
             /// attachment information (DetectGestureTouchSequence.Value)
             public let relatedGestureValue: DetectGestureTouchSequence.Value
         }
 
         /// Unique identifier for the finger event
-        public let eventID: SpatialEventCollection.Event.ID
+        public let spatialEventCollectionEventID: SpatialEventCollection.Event.ID
         /// Array of values for this finger's touch
-        public let values: [Event]
+        public let events: [Event]
 
         public init(eventID: SpatialEventCollection.Event.ID, values: [Event]) {
-            self.eventID = eventID
-            self.values = values.sortedByTimestamp
+            self.spatialEventCollectionEventID = eventID
+            self.events = values.sortedByTimestamp
         }
     }
 
     /// Events per finger
-    public let touches: [Finger]
+    public let fingers: [Finger]
 }
 
 // MARK: - DetectGestureFingerSequence.Finger.Event Utility
@@ -34,7 +34,7 @@ public struct DetectGestureFingerSequence {
 public extension DetectGestureFingerSequence.Finger.Event {
     /// Check if a location of a finger is within view bounds
     func isInView() -> Bool {
-        let location = fingerEvent.location
+        let location = spatialEventCollectionEvent.location
         return location.x >= 0 && location.x <= relatedGestureValue.geometryProxy.size.width
             && location.y >= 0 && location.y <= relatedGestureValue.geometryProxy.size.height
     }
@@ -68,8 +68,8 @@ public extension DetectGestureFingerSequence.Finger {
     /// Tap occurrence period
     var period: TouchPeriod? {
         guard
-            let first = values.first,
-            let last = values.last
+            let first = events.first,
+            let last = events.last
         else {
             return nil
         }
@@ -99,15 +99,15 @@ public extension DetectGestureFingerSequence.Finger {
 
     /// Check if tap periods overlap with any of the given taps
     func isOverlapped(with anothers: [DetectGestureFingerSequence.Finger], removeSelf: Bool = true) -> Bool {
-        let anothers = removeSelf ? anothers.filter { $0.eventID != eventID } : anothers
+        let anothers = removeSelf ? anothers.filter { $0.spatialEventCollectionEventID != spatialEventCollectionEventID } : anothers
         return anothers.contains(where: { $0.isOverlapped(with: self) })
     }
 
     /// Distance moved from the initial tap location
     var diff: CGPoint {
         guard
-            let firstLocation = values.first?.fingerEvent.location,
-            let lastLocation = values.last?.fingerEvent.location
+            let firstLocation = events.first?.spatialEventCollectionEvent.location,
+            let lastLocation = events.last?.spatialEventCollectionEvent.location
         else {
             return .zero
         }
@@ -121,8 +121,8 @@ public extension DetectGestureFingerSequence.Finger {
     /// Translation from start location
     var translation: CGSize {
         guard
-            let firstLocation = values.first?.fingerEvent.location,
-            let lastLocation = values.last?.fingerEvent.location
+            let firstLocation = events.first?.spatialEventCollectionEvent.location,
+            let lastLocation = events.last?.spatialEventCollectionEvent.location
         else {
             return .zero
         }
@@ -136,13 +136,13 @@ public extension DetectGestureFingerSequence.Finger {
     /// Velocity of the gesture movement
     var velocity: CGSize {
         guard
-            values.count >= 2,
-            let lastValue = values.last
+            events.count >= 2,
+            let lastValue = events.last
         else {
             return .zero
         }
 
-        let secondLastValue = values[values.count - 2]
+        let secondLastValue = events[events.count - 2]
 
         let timeInterval = lastValue.time.timeIntervalSince(secondLastValue.time)
         guard timeInterval > 0 else {
@@ -150,8 +150,8 @@ public extension DetectGestureFingerSequence.Finger {
         }
 
         let distance = CGSize(
-            width: lastValue.fingerEvent.location.x - secondLastValue.fingerEvent.location.x,
-            height: lastValue.fingerEvent.location.y - secondLastValue.fingerEvent.location.y
+            width: lastValue.spatialEventCollectionEvent.location.x - secondLastValue.spatialEventCollectionEvent.location.x,
+            height: lastValue.spatialEventCollectionEvent.location.y - secondLastValue.spatialEventCollectionEvent.location.y
         )
 
         let velocity = CGSize(
@@ -167,31 +167,18 @@ public extension DetectGestureFingerSequence.Finger {
 
 public extension DetectGestureFingerSequence {
     /// Check if any single finger tap satisfies the condition
-    func anySingleFingerTouchContains(_ completion: @escaping (Finger, DetectGestureFingerSequence) -> Bool) -> Bool {
-        touches.contains(where: { singleFingerValues in
+    func anyFingerContains(_ completion: @escaping (Finger, DetectGestureFingerSequence) -> Bool) -> Bool {
+        fingers.contains(where: { singleFingerValues in
             completion(singleFingerValues, self)
         })
-    }
-
-    /// convert to [DetectGestureTouchSequence.Value]
-    var asDetectGestureValues: [DetectGestureTouchSequence.Value] {
-        touches.flatMap(\.values)
-            .map(\.relatedGestureValue)
-            .distinctBy { $0.id }
-            .sorted { $0.time < $1.time }
     }
 }
 
 public extension [DetectGestureFingerSequence] {
     /// Check if any single finger tap satisfies the condition
-    func anySingleFingerTouchContains(_ completion: @escaping (DetectGestureFingerSequence.Finger, DetectGestureFingerSequence) -> Bool) -> Bool {
+    func anyFingerContains(_ completion: @escaping (DetectGestureFingerSequence.Finger, DetectGestureFingerSequence) -> Bool) -> Bool {
         self.contains(where: {
-            $0.anySingleFingerTouchContains(completion)
+            $0.anyFingerContains(completion)
         })
-    }
-
-    /// convert to [DetectGestureTouchSequence.Value]
-    var asDetectGestureValues: [DetectGestureTouchSequence.Value] {
-        self.flatMap { $0.asDetectGestureValues }
     }
 }
