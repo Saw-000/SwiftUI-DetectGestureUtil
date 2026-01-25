@@ -70,7 +70,7 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
     private func processGesture(
         spatialEventCollection: SpatialEventCollection,
         geo: GeometryProxy?,
-        timing: DetectGestureValue.Timing
+        timing: DetectGestureTouchSequence.Value.Timing
     ) {
         guard let geo else {
             return
@@ -81,7 +81,7 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
         }
 
         // Record new value
-        let value = DetectGestureValue(
+        let value = DetectGestureTouchSequence.Value(
             spatialEventCollection: spatialEventCollection,
             geometryProxy: geo,
             timing: timing,
@@ -115,7 +115,7 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
             return
         }
 
-        let value = DetectGestureValue(
+        let value = DetectGestureTouchSequence.Value(
             spatialEventCollection: lastValue.spatialEventCollection,
             geometryProxy: lastValue.geometryProxy,
             timing: .heartbeat,

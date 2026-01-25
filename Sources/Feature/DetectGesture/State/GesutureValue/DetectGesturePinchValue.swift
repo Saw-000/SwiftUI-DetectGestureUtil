@@ -4,7 +4,7 @@ import SwiftUI
 /// ピンチジェスチャのある時点での値
 public struct DetectGesturePinchValue {
     /// 必ず2つのみイベントを持つ
-    public let values: [DetectGestureSingleFingerValue]
+    public let values: [DetectGestureFingerSequence.Finger.Event]
 }
 
 /// ピンチジェスチャの状態

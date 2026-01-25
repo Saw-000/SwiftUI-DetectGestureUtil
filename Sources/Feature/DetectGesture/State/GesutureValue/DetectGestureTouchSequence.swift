@@ -1,41 +1,41 @@
-//
-//  DetectGestureValue.swift
-//  SwiftUI-DetectGestureUtil
-//
-//  Created by IeSo on 2026/01/01.
-//
-
 import MyModuleCore
 import SwiftUI
 
-/// Value containing gesture state information (like DragGesture.Value)
-public struct DetectGestureValue: Identifiable {
-    /// Timing of gesture state update
-    public enum Timing {
-        /// Gesture changed
-        case changed
-        /// Gesture ended
-        case ended
-        /// Periodic update while gesture is active
-        case heartbeat
+public struct DetectGestureTouchSequence: Identifiable {
+    /// Value containing gesture state information (like DragGesture.Value)
+    public struct Value: Identifiable {
+        /// Timing of gesture state update
+        public enum Timing {
+            /// Gesture changed
+            case changed
+            /// Gesture ended
+            case ended
+            /// Periodic update while gesture is active
+            case heartbeat
+        }
+
+        /// id
+        public var id: UUID = .init()
+
+        /// Spatial event collection from SwiftUI
+        public let spatialEventCollection: SpatialEventCollection
+        /// Geometry proxy for view bounds
+        public let geometryProxy: GeometryProxy
+        /// Timing of this state update
+        public var timing: Timing
+        /// Timestamp of this state
+        public var time: Date
     }
 
     /// id
-    public var id: UUID = .init()
+    public let id: UUID = .init()
 
-    /// Spatial event collection from SwiftUI
-    public let spatialEventCollection: SpatialEventCollection
-    /// Geometry proxy for view bounds
-    public let geometryProxy: GeometryProxy
-    /// Timing of this state update
-    public var timing: Timing
-    /// Timestamp of this state
-    public var time: Date
+    public let values: [Value]
 }
 
-// MARK: - Utility
+// MARK: - DetectGestureTouchSequence.Value Utility
 
-public extension DetectGestureValue {
+public extension DetectGestureTouchSequence.Value {
     /// Number of fingers currently touching
     var fingerCount: Int {
         spatialEventCollection.count
@@ -53,10 +53,10 @@ public extension DetectGestureValue {
         })
     }
 
-    /// Convert to DetectGestureSingleFingerValue format
-    func asSingleFingerValues() -> [DetectGestureSingleFingerValue] {
+    /// Convert to DetectGestureFingerSequence.Finger.Event format
+    func asSingleFingerValues() -> [DetectGestureFingerSequence.Finger.Event] {
         spatialEventCollection.map { event in
-            DetectGestureSingleFingerValue(
+            DetectGestureFingerSequence.Finger.Event(
                 fingerEvent: event,
                 relatedGestureValue: self
             )
@@ -64,10 +64,10 @@ public extension DetectGestureValue {
     }
 }
 
-public extension [DetectGestureValue] {
+public extension [DetectGestureTouchSequence.Value] {
     /// Split into sequences from tap start until all fingers are released
-    private func splittedInTapSequences() -> [[DetectGestureValue]] {
-        var buffer = [[DetectGestureValue]]()
+    private func splittedInTapSequences() -> [[DetectGestureTouchSequence.Value]] {
+        var buffer = [[DetectGestureTouchSequence.Value]]()
 
         var nextStartIndex = 0
         for i in 0 ... self.count - 1 {
@@ -84,7 +84,7 @@ public extension [DetectGestureValue] {
     }
 
     /// Split into sequences from tap start until all fingers are released
-    func asTapSequences() -> [DetectGestureTapSequence] {
+    func asTapSequences() -> [DetectGestureFingerSequence] {
         let formed = self.splittedInTapSequences().map {
             let singleFingers = $0.flatMap {
                 $0.asSingleFingerValues()
@@ -98,7 +98,7 @@ public extension [DetectGestureValue] {
                 by: { $0.fingerEvent.id }
             )
             .map {
-                DetectGestureSingleFingerTouch(
+                DetectGestureFingerSequence.Finger(
                     eventID: $0.key,
                     values: $0.value
                 )
@@ -107,22 +107,22 @@ public extension [DetectGestureValue] {
                 $0.values.first!.time < $1.values.first!.time
             })
         }.map {
-            DetectGestureTapSequence(touches: $0)
+            DetectGestureFingerSequence(touches: $0)
         }
 
         return formed
     }
 
     /// Filter values to only include original gesture events (changed and ended)
-    var filterdWithRawTimings: [DetectGestureValue] {
-        let rawGestureTimings: [DetectGestureValue.Timing] = [.changed, .ended]
+    var filterdWithRawTimings: [DetectGestureTouchSequence.Value] {
+        let rawGestureTimings: [DetectGestureTouchSequence.Value.Timing] = [.changed, .ended]
         return self.filter { value in
             rawGestureTimings.contains(value.timing)
         }
     }
 
     /// Process taps for each individual finger
-    func processPerSingleFingerTouch(_ completion: (DetectGestureSingleFingerTouch, DetectGestureTapSequence) -> Void) {
+    func processPerSingleFingerTouch(_ completion: (DetectGestureFingerSequence.Finger, DetectGestureFingerSequence) -> Void) {
         for tapSequence in self.asTapSequences() {
             for singleFingerValues in tapSequence.touches {
                 completion(singleFingerValues, tapSequence)
@@ -131,7 +131,7 @@ public extension [DetectGestureValue] {
     }
 
     /// Check if any single finger tap satisfies the condition
-    func anySingleFingerTouchContains(_ completion: @escaping (DetectGestureSingleFingerTouch, DetectGestureTapSequence) -> Bool) -> Bool {
+    func anySingleFingerTouchContains(_ completion: @escaping (DetectGestureFingerSequence.Finger, DetectGestureFingerSequence) -> Bool) -> Bool {
         self.asTapSequences().anySingleFingerTouchContains(completion)
     }
 }

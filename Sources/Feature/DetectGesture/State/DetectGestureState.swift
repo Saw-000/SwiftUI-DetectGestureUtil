@@ -13,7 +13,7 @@ private enum Const {
 /// State of DetectGesture
 public struct DetectGestureState<GestureDetection: Equatable> {
     /// History of gesture information
-    public var gestureValues: [DetectGestureValue] = []
+    public var gestureValues: [DetectGestureTouchSequence.Value] = []
 
     /// Detected gesture
     public var detection: GestureDetection?
@@ -34,22 +34,22 @@ public extension DetectGestureState {
     }
 
     /// Gesture values converted to tap sequences
-    var tapSequences: [DetectGestureTapSequence] {
+    var tapSequences: [DetectGestureFingerSequence] {
         gestureValues.asTapSequences()
     }
 
     /// Last tap sequence
-    var lastTapSequence: DetectGestureTapSequence? {
+    var lastTapSequence: DetectGestureFingerSequence? {
         tapSequences.last
     }
 
     /// Last Detected Gesture Value
-    var lastGestureValue: DetectGestureValue? {
+    var lastGestureValue: DetectGestureTouchSequence.Value? {
         gestureValues.last
     }
 
     /// Currently tapping fingers
-    var tappingFingers: [DetectGestureSingleFingerTouch] {
+    var tappingFingers: [DetectGestureFingerSequence.Finger] {
         guard
             let tapSequence = lastTapSequence,
             let lastGestureValue = lastGestureValue
@@ -65,7 +65,7 @@ public extension DetectGestureState {
     }
 
     /// Process taps for each individual finger
-    func processPerSingleFingerTouch(_ completion: (DetectGestureSingleFingerTouch, DetectGestureTapSequence) -> Void) {
+    func processPerSingleFingerTouch(_ completion: (DetectGestureFingerSequence.Finger, DetectGestureFingerSequence) -> Void) {
         gestureValues.processPerSingleFingerTouch(completion)
     }
 }
@@ -76,7 +76,7 @@ public extension DetectGestureState {
     /// Whether the specified default gesture has already been detected
     func detected(
         _ wantToDetectGesture: DefaultDetectGesture,
-        gestureValues: [DetectGestureValue]? = nil
+        gestureValues: [DetectGestureTouchSequence.Value]? = nil
     ) -> Bool {
         let gestureValues = gestureValues ?? self.gestureValues
         let tapSequences = gestureValues.asTapSequences()
@@ -90,7 +90,7 @@ public extension DetectGestureState {
     /// Whether the specified default gesture has already been detected
     func detected(
         _ wantToDetectGesture: DefaultDetectGesture,
-        tapSequences: [DetectGestureTapSequence]
+        tapSequences: [DetectGestureFingerSequence]
     ) -> Bool {
         switch wantToDetectGesture {
         case let .tap(allowMultiTap, checkOnlyLastTap):
@@ -152,7 +152,7 @@ public extension DetectGestureState {
 
     /// Detect Tap Gesture
     private func detectTap(
-        tapSequences: [DetectGestureTapSequence],
+        tapSequences: [DetectGestureFingerSequence],
         allowMultiTap: Bool,
         checkOnlyLastTap: Bool
     ) -> Bool {
@@ -172,7 +172,7 @@ public extension DetectGestureState {
 
     /// Detect Long Tap Gesture
     private func detectLongTap(
-        tapSequences: [DetectGestureTapSequence],
+        tapSequences: [DetectGestureFingerSequence],
         milliSecondsForDetection: TimeInterval,
         allowMultiTap: Bool,
         checkOnlyLastTap: Bool
@@ -196,7 +196,7 @@ public extension DetectGestureState {
 
     /// Detect Drag Gesture
     private func detectDrag(
-        tapSequences: [DetectGestureTapSequence],
+        tapSequences: [DetectGestureFingerSequence],
         minimumDistance: CGFloat,
         allowMultiTap: Bool,
         checkOnlyLastTap: Bool
@@ -215,7 +215,7 @@ public extension DetectGestureState {
 
     /// Detect Slide Gesture
     private func detectSlide(
-        tapSequences: [DetectGestureTapSequence],
+        tapSequences: [DetectGestureFingerSequence],
         direction: DefaultDetectGestureDirection,
         minimumDistance: CGFloat,
         allowMultiTap: Bool,
@@ -246,7 +246,7 @@ public extension DetectGestureState {
 
     /// Detect Swipe Gesture
     private func detectSwipe(
-        tapSequences: [DetectGestureTapSequence],
+        tapSequences: [DetectGestureFingerSequence],
         direction: DefaultDetectGestureDirection,
         allowMultiTap: Bool,
         checkOnlyLastTap: Bool
@@ -283,7 +283,7 @@ public extension DetectGestureState {
 
     /// Detect Sequential Tap Gesture
     private func detectSequentialTap(
-        tapSequences: [DetectGestureTapSequence],
+        tapSequences: [DetectGestureFingerSequence],
         count: Int,
         maximumTapIntervalMilliseconds: TimeInterval,
         checkOnlyLastTap: Bool
@@ -315,7 +315,7 @@ public extension DetectGestureState {
         }
 
         var sequentialTapCount = 1
-        var previousTapEndValue: DetectGestureSingleFingerValue? = nil
+        var previousTapEndValue: DetectGestureFingerSequence.Finger.Event? = nil
 
         // Count sequential tap count
         for tapEndValue in tapEndValues {
@@ -355,7 +355,7 @@ public extension DetectGestureState {
 
     /// Detect Pinch Gesture
     private func detectPinch(
-        tapSequences: [DetectGestureTapSequence],
+        tapSequences: [DetectGestureFingerSequence],
         minimumDistance: CGFloat,
         checkOnlyLastTap: Bool
     ) -> Bool {
@@ -364,7 +364,7 @@ public extension DetectGestureState {
 
     /// Detect Pinch Gesture
     private func detectPinch(
-        gestureValues: [DetectGestureValue],
+        gestureValues: [DetectGestureTouchSequence.Value],
         minimumDistance: CGFloat,
         checkOnlyLastTap: Bool
     ) -> Bool {
@@ -404,12 +404,12 @@ public extension DetectGestureState {
     }
 
     /// Extract pinch gesture information from tap sequences
-    func pinchValues(from tapSequences: [DetectGestureTapSequence]) -> [DetectGesturePinch] {
+    func pinchValues(from tapSequences: [DetectGestureFingerSequence]) -> [DetectGesturePinch] {
         pinchValues(from: tapSequences.asDetectGestureValues)
     }
 
     /// Calculate pinch state from gesture values
-    private func pinchValues(from gestureValues: [DetectGestureValue]) -> [DetectGesturePinch] {
+    private func pinchValues(from gestureValues: [DetectGestureTouchSequence.Value]) -> [DetectGesturePinch] {
         var pinches: [DetectGesturePinch] = []
         var currentPinchValues: [DetectGesturePinchValue] = []
         var currentEventIDs: Set<SpatialEventCollection.Event.ID>? = nil
@@ -464,7 +464,7 @@ public extension DetectGestureState {
     /// Determine if the pinch gesture has ended
     private func isPinchEnded(
         eventIDs: Set<SpatialEventCollection.Event.ID>?,
-        lastGestureValue: DetectGestureValue?
+        lastGestureValue: DetectGestureTouchSequence.Value?
     ) -> Bool {
         guard let lastGestureValue else {
             return true
