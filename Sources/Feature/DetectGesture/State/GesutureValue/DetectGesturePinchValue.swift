@@ -4,7 +4,7 @@ import SwiftUI
 /// ピンチジェスチャのある時点での値
 public struct DetectGesturePinchValue {
     /// 必ず2つのみイベントを持つ
-    public let values: [DetectGestureSingleFingerValue]
+    public let values: [DetectGestureFingerSequence.Finger.Event]
 }
 
 /// ピンチジェスチャの状態
@@ -21,8 +21,8 @@ public struct DetectGesturePinch {
 
 public extension DetectGesturePinchValue {
     var center: CGPoint {
-        let firstEvent = values[0].fingerEvent
-        let secondEvent = values[1].fingerEvent
+        let firstEvent = values[0].spatialEventCollectionEvent
+        let secondEvent = values[1].spatialEventCollectionEvent
 
         return CGPoint(
             x: (firstEvent.location.x + secondEvent.location.x) / 2,
@@ -32,8 +32,8 @@ public extension DetectGesturePinchValue {
 
     /// 距離
     var distance: CGFloat {
-        let firstEvent = values[0].fingerEvent
-        let secondEvent = values[1].fingerEvent
+        let firstEvent = values[0].spatialEventCollectionEvent
+        let secondEvent = values[1].spatialEventCollectionEvent
 
         let distance = CGSize(
             width: firstEvent.location.x - secondEvent.location.x,
