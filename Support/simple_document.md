@@ -32,49 +32,49 @@ SomeView()
 )
 ```
 
-`SpatialEventGesture`はマルチフィンガージェスチャを扱うための公式APIである([doc](https://developer.apple.com/documentation/swiftui/spatialeventgesture))。  
-`detectGesture()`はその`SpatialEventGesture`のラッパーである。  
+`SpatialEventGesture` is the official API for handling multi-finger gestures ([doc](https://developer.apple.com/documentation/swiftui/spatialeventgesture)).
+`detectGesture()` is a wrapper around `SpatialEventGesture`.
 
-`detectGesture()`は内部で`SpatialEventGesture`を監視して、onChangedやonEndedが呼ばれた時に`detect: {}`や`handle: {}`などをコールしている。  
-渡される新しい値(`SpatialEventCollection`)は、`DetectGestureValue`でラップされ、`DetectGestureState`内の`gestureValues: [DetectGestureTouchSequence.Value]`プロパティに格納され、クロージャの引数として渡される。
+`detectGesture()` internally monitors `SpatialEventGesture` and calls `detect: {}` and `handle: {}` when onChanged or onEnded are triggered.
+The new values passed (`SpatialEventCollection`) are wrapped in `DetectGestureValue`, stored in the `gestureValues: [DetectGestureTouchSequence.Value]` property within `DetectGestureState`, and passed as closure arguments.
 
-## SpatialEventGesture (Official API)の仕様
+## SpatialEventGesture (Official API) Specifications
 <img src="res/gesture_raw.png" alt="gestureの図示">
 <img src="res/gesture_SpatialEventGesture.png" alt="SpatialEventGestureの図示">
 
-- `SpatialEventCollection`: その時点での指ごとのジェスチャ情報である`[SpatialEventCollection.Event]`を格納している。
-- `SpatialEventCollection.Event`: 指一本の情報。idを持っていて同じ指なら同じ値になる。
-  - [注意] idの一意性は同じシークエンス内でのみ保証されます。異なるシークエンスでは同じ値が使いまわされる可能性があります。
-- [注意] 指が動いていない間はonUpdated/onEndedは呼ばれません。
+- `SpatialEventCollection`: Stores `[SpatialEventCollection.Event]`, which contains gesture information for each finger at that point in time.
+- `SpatialEventCollection.Event`: Information for a single finger. Each has an id, and the same finger will have the same id value.
+  - [Note] The uniqueness of the id is only guaranteed within the same sequence. The same value may be reused in different sequences.
+- [Note] onUpdated/onEnded are not called while the finger is not moving.
 
 ## DetectGesture (This API)
 
 <img src="res/gesture_DetectGesture.png" alt="DetectGestureの図示">
 
-- `DetectGestureTouchSequence.Value`: `SpatialEventCollection` + 独自の追加情報です。詳細は[定義](../Sources/Feature/DetectGesture/State/GesutureValue/DetectGestureValue.swift)を確認してください。
-- `DetectGestureTouchSequence`: 一つのシークエンス。`[DetectGestureTouchSequence.Value]`を格納する。
-- `SpatialEventGesture`と違い指が止まっている間も新しい値が生成され、`detect: {}`や`handle: {}`などをコールします。
+- `DetectGestureTouchSequence.Value`: `SpatialEventCollection` + additional custom information. See the [definition](../Sources/Feature/DetectGesture/State/GesutureValue/DetectGestureValue.swift) for details.
+- `DetectGestureTouchSequence`: A single sequence. Stores `[DetectGestureTouchSequence.Value]`.
+- Unlike `SpatialEventGesture`, new values are generated even while the finger is not moving, and `detect: {}` and `handle: {}` are called.
 
-## 変換 Utilities
+## Conversion Utilities
 
-`detectGesture()`のクロージャで渡される`DetectGestureState`は`gestureValues: [DetectGestureTouchSequence.Value]`プロパティにタップ情報を格納している。そのままで使いにくい場合は以下のようなユーティリティ型に変換してから使うと良い。
+The `DetectGestureState` passed to the `detectGesture()` closure stores tap information in the `gestureValues: [DetectGestureTouchSequence.Value]` property. If it's difficult to use as-is, you can convert it to one of the following utility types.
 
-### シークエンスごとにまとめる
+### Group by Sequence
 
-`[DetectGestureTouchSequence]`に変換できる。
+Can be converted to `[DetectGestureTouchSequence]`.
 
-### 指ごとにまとめる
+### Group by Finger
 
 <img src="res/gesture_asFinger.png" alt="指ごとにまとめるの図示">
 
-- 指ごとに情報を整理した`[DetectGestureFingerSequence]`型に変換できる。
-- 便利なのでこの型に変換してから使うことが多そう。
-- `DetectGestureFingerSequence`, `DetectGestureFingerSequence.Finger`, `DetectGestureFingerSequence.Finger.Event`: 図に示す通り。
+- Can be converted to `[DetectGestureFingerSequence]` type, which organizes information by finger.
+- This type is convenient, so it's often converted to this type before use.
+- `DetectGestureFingerSequence`, `DetectGestureFingerSequence.Finger`, `DetectGestureFingerSequence.Finger.Event`: As shown in the diagram.
 
-### ピンチ用に変換
+### Convert for Pinch
 
-- ピンチジェスチャ用に`[DetectGesturePinchCollection]`型に変換できる。
+- Can be converted to `[DetectGesturePinchCollection]` type for pinch gestures.
 
-### その他の変換
+### Other Conversions
 
-必要そうなのは作った。
+Created the ones that seem necessary.
