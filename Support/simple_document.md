@@ -39,8 +39,8 @@ SomeView()
 渡される新しい値(`SpatialEventCollection`)は、`DetectGestureValue`でラップされ、`DetectGestureState`内の`gestureValues: [DetectGestureTouchSequence.Value]`プロパティに格納され、クロージャの引数として渡される。
 
 ## SpatialEventGesture (Official API)の仕様
-
-TODO: 図
+<img src="res/gesture_raw.png" alt="gestureの図示">
+<img src="res/gesture_SpatialEventGesture.png" alt="SpatialEventGestureの図示">
 
 - `SpatialEventCollection`: その時点での指ごとのジェスチャ情報である`[SpatialEventCollection.Event]`を格納している。
 - `SpatialEventCollection.Event`: 指一本の情報。idを持っていて同じ指なら同じ値になる。
@@ -49,7 +49,7 @@ TODO: 図
 
 ## DetectGesture (This API)
 
-TODO: 図
+<img src="res/gesture_DetectGesture.png" alt="DetectGestureの図示">
 
 - `DetectGestureTouchSequence.Value`: `SpatialEventCollection` + 独自の追加情報です。詳細は[定義](../Sources/Feature/DetectGesture/State/GesutureValue/DetectGestureValue.swift)を確認してください。
 - `DetectGestureTouchSequence`: 一つのシークエンス。`[DetectGestureTouchSequence.Value]`を格納する。
@@ -65,7 +65,7 @@ TODO: 図
 
 ### 指ごとにまとめる
 
-TODO: 図
+<img src="res/gesture_asFinger.png" alt="指ごとにまとめるの図示">
 
 - 指ごとに情報を整理した`[DetectGestureFingerSequence]`型に変換できる。
 - 便利なのでこの型に変換してから使うことが多そう。
