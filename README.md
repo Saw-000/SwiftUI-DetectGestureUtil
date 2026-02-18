@@ -77,7 +77,7 @@ struct ContentView: View {
                     // No gesture detected
                     return nil
                 },
-                handleGesture: { detection, state in
+                handle: { detection, state in
                     // Gesture handling phase after detection
 
                     // Return value:

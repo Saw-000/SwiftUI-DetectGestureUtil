@@ -23,12 +23,12 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
     private let heartbeatTimer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
 
     init(
-        detectGesture: @escaping (DetectGestureState<GestureDetection>) -> GestureDetection?,
-        handleGesture: @escaping (_ detection: GestureDetection, DetectGestureState<GestureDetection>) -> HandleGestureReturn,
+        detect: @escaping (DetectGestureState<GestureDetection>) -> GestureDetection?,
+        handle: @escaping (_ detection: GestureDetection, DetectGestureState<GestureDetection>) -> HandleGestureReturn,
         gestureEnded: ((_ detection: GestureDetection, DetectGestureState<GestureDetection>) -> Void)? = nil
     ) {
-        self.detectGesture = detectGesture
-        self.handleGesture = handleGesture
+        self.detectGesture = detect
+        self.handleGesture = handle
         self.gestureEnded = gestureEnded
     }
 
@@ -189,10 +189,10 @@ public extension View {
     ///   - gestureEnded: Optional closure called immediately after handleGesture returns .finished, indicating gesture handling has completed. Useful for cleanup or state reset operations.
     func detectGesture<GestureDetection: Equatable>(
         _: GestureDetection.Type,
-        detectGesture: @escaping (DetectGestureState<GestureDetection>) -> GestureDetection?,
-        handleGesture: @escaping (_ detection: GestureDetection, DetectGestureState<GestureDetection>) -> HandleGestureReturn,
+        detect: @escaping (DetectGestureState<GestureDetection>) -> GestureDetection?,
+        handle: @escaping (_ detection: GestureDetection, DetectGestureState<GestureDetection>) -> HandleGestureReturn,
         gestureEnded: ((_ detection: GestureDetection, DetectGestureState<GestureDetection>) -> Void)? = nil
     ) -> some View {
-        modifier(DetectGestureViewModifier<GestureDetection>(detectGesture: detectGesture, handleGesture: handleGesture, gestureEnded: gestureEnded))
+        modifier(DetectGestureViewModifier<GestureDetection>(detect: detect, handle: handle, gestureEnded: gestureEnded))
     }
 }

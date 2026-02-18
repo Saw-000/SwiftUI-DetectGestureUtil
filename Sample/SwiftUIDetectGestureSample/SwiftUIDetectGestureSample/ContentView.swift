@@ -20,7 +20,7 @@ struct ContentView: View {
             .background(.blue)
             .detectGesture(
                 MyGestureDetection1.self,
-                detectGesture: { state in
+                detect: { state in
                     if state.detected(.tap()) {
                         return .tap
                     } else if state.detected(.longTap(milliSecondsForDetection: 1000)) {
@@ -31,7 +31,7 @@ struct ContentView: View {
                         return nil
                     }
                 },
-                handleGesture: { detection, state in
+                handle: { detection, state in
                     switch detection {
                     case .tap:
                         detectedGestureText = "Tap"
@@ -71,7 +71,7 @@ struct ContentView: View {
             .background(.red)
             .detectGesture(
                 MyGestureDetection2.self,
-                detectGesture: { state in
+                detect: { state in
                     if state.detected(.slide(direction: .right, minimumDistance: 50)) {
                         return .rightSlide
                     } else if state.detected(.swipe(direction: .up)) {
@@ -82,7 +82,7 @@ struct ContentView: View {
 
                     return nil
                 },
-                handleGesture: { detection, state in
+                handle: { detection, state in
                     switch detection {
                     case .rightSlide:
                         if state.lastGestureValue?.timing == .ended {
@@ -114,7 +114,7 @@ struct ContentView: View {
                 .background(.orange)
                 .detectGesture(
                     MyGestureDetection3.self,
-                    detectGesture: { state in
+                    detect: { state in
                         detectGestureState3 = state
 
                         // Get currently tapping fingers
@@ -148,7 +148,7 @@ struct ContentView: View {
 
                         return nil
                     },
-                    handleGesture: { detection, state in
+                    handle: { detection, state in
                         detectGestureState3 = state
 
                         switch detection {
