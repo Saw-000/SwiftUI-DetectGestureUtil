@@ -83,6 +83,7 @@ struct ContentView: View {
                     // Return value:
                     // - .finished: Indicates processing is complete. Gesture processing is completely finished. The closure will no longer be called.
                     // - .yet: Indicates processing is incomplete. As long as .yet is returned, it will be called when the gesture state is updated, similar to Gesture.onChanged() and Gesture.onEnded(). A heartbeat mechanism ensures continuous updates even if fingers remain at the same location.
+                    // - .cancel: Indicate cancelling the detection, and back to the detection phase.
 
                     switch detection {
                     case .swipeUp:

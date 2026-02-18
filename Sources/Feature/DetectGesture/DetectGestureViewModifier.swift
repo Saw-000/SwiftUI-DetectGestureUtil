@@ -149,7 +149,16 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
         // If gesture was detected, perform the assigned processing.
         if state.gestureDetected, !state.handleFinished, let detection {
             let handleResult = handleGesture(detection, state)
-            state.handleFinished = handleResult == .finished
+            switch handleResult {
+            case .yet:
+                break
+
+            case .finished:
+                state.handleFinished = handleResult == .finished
+
+            case .cancel:
+                state.detection = nil
+            }
 
             // Call gestureEnded callback when handling is complete
             if state.handleFinished {
@@ -160,7 +169,12 @@ struct DetectGestureViewModifier<GestureDetection: Equatable>: ViewModifier {
 }
 
 public enum HandleGestureReturn {
-    case yet, finished
+    /// don't finish handling yet
+    case yet
+    /// finish handling
+    case finished
+    /// cancel detection
+    case cancel
 }
 
 public extension View {
